@@ -77,11 +77,19 @@
                     </FrameLayout>
 
                     <ImageButton
+                        android:id="@+id/btn_language"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_language"
+                        app:tint="@color/primary_purple" />
+
+                    <ImageButton
                         android:id="@+id/btn_header_colleagues"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:src="@drawable/ic_group"
                         app:tint="@color/primary_purple" />
 
                     <ImageButton
@@ -111,7 +119,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="Ready for your shift today?"
+                    android:text="@string/home_subtitle"
                     android:textColor="@color/text_secondary"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -155,7 +163,7 @@
                         android:id="@+id/tv_label_team_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Your Work ID"
+                        android:text="@string/label_work_id"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -209,7 +217,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="🔔 Permintaan Rekan"
+                        android:text="@string/label_colleague_request"
                         android:textColor="@color/white"
                         android:textSize="14sp" />
 
@@ -218,7 +226,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Seseorang ingin terhubung"
+                        android:text="@string/label_someone_wants_to_connect"
                         android:textColor="@color/white"
                         android:textSize="13sp" />
 
@@ -235,7 +243,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="Terima"
+                            android:text="@string/btn_accept"
                             android:textColor="@color/white"
                             app:backgroundTint="#4CAF50" />
 
@@ -245,74 +253,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Tolak"
+                            android:text="@string/btn_reject"
                             android:textColor="@color/white"
                             app:backgroundTint="#F44336" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Handover Notification Card (B's Side) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_handover_notification"
-                style="@style/GlassCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="4dp"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                app:cardBackgroundColor="#1A237E"
-                app:layout_constraintTop_toBottomOf="@id/card_request">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-black"
-                        android:text="📦 Handover Pasien Masuk"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tv_handover_desc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Perawat A ingin menyerahkan Pasien X"
-                        android:textColor="@color/white"
-                        android:textSize="13sp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btn_accept_handover"
-                            style="@style/Widget.Material3.Button.TonalButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:layout_weight="1"
-                            android:text="Terima"
-                            android:textColor="@color/white"
-                            app:backgroundTint="#2E7D32" />
-
-                        <Button
-                            android:id="@+id/btn_reject_handover"
-                            style="@style/Widget.Material3.Button.TonalButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Tolak"
-                            android:textColor="@color/white"
-                            app:backgroundTint="#C62828" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -325,7 +268,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="4dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@id/card_handover_notification">
+                app:layout_constraintTop_toBottomOf="@id/card_request">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -337,7 +280,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="🔄 Briefing &amp; Operan Shift"
+                        android:text="@string/label_briefing_and_handover"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -348,7 +291,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Mulai operan dan lihat ringkasan klinis"
+                        android:text="@string/label_start_handover_desc"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -399,14 +342,15 @@
                             android:background="@drawable/bg_icon_container">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
                                 android:layout_gravity="center"
-                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:src="@drawable/ic_person"
                                 app:tint="@color/primary_purple" />
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/tv_patients_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -441,14 +385,15 @@
                             android:background="@drawable/bg_icon_container">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
                                 android:layout_gravity="center"
                                 android:src="@android:drawable/ic_menu_compass"
                                 app:tint="@color/primary_blue" />
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/tv_iv_calc_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -483,19 +428,20 @@
                             android:background="@drawable/bg_icon_container">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
                                 android:layout_gravity="center"
-                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:src="@drawable/ic_group"
                                 app:tint="@color/accent_cyan" />
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/tv_colleagues_label_grid"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:fontFamily="sans-serif-black"
-                            android:text="Rekan Kerja"
+                            android:text="@string/tool_colleagues"
                             android:textColor="@color/text_primary"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -525,14 +471,15 @@
                             android:background="@drawable/bg_icon_container">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
                                 android:layout_gravity="center"
                                 android:src="@android:drawable/ic_menu_edit"
                                 app:tint="@color/primary_purple" />
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/tv_vitals_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -567,14 +514,15 @@
                             android:background="@drawable/bg_icon_container">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
                                 android:layout_gravity="center"
                                 android:src="@android:drawable/ic_menu_info_details"
                                 app:tint="@color/primary_blue" />
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/tv_ai_notes_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -607,7 +555,7 @@
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="24dp"
                 android:fontFamily="sans-serif-black"
-                android:text="Tim Anda"
+                android:text="@string/label_my_team"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"

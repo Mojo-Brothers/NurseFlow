@@ -1,16 +1,50 @@
 <resources>
     <string name="app_name">NurseFlow</string>
 
+    <!-- Login -->
+    <string name="login_welcome">Selamat Datang Kembali</string>
+    <string name="login_subtitle">Masuk untuk melanjutkan</string>
+    <string name="login_continue_google">Masuk dengan Google</string>
+
     <!-- Home Screen -->
-    <string name="greeting_nurse">Selamat Pagi, Perawat</string>
-    <string name="shift_checklist">Checklist Shift</string>
-    <string name="core_mvp_tools">Alat Utama MVP</string>
+    <string name="greeting_nurse">Selamat Pagi, Rekan Perawat</string>
+    <string name="greeting_hello_prefix">Halo</string>
+    <string name="home_subtitle">Siap untuk hari ini?</string>
+    <string name="label_work_id">ID Kerja Anda</string>
+    <string name="shift_checklist">Checklist Handover</string>
+    <string name="core_mvp_tools">Alat Utama</string>
     <string name="tool_vitals">Vital Sign</string>
     <string name="tool_iv_calc">Kalkulator IV</string>
     <string name="tool_ai_notes">Catatan AI</string>
     <string name="tool_patients">Pasien</string>
+    <string name="tool_colleagues">Rekan Kerja</string>
+    <string name="label_my_team">Tim Anda</string>
     <string name="action_general_notes">Catatan Umum</string>
     <string name="action_export_pdf">Ekspor PDF</string>
+
+    <string name="label_incoming_handover">📦 Handover Masuk</string>
+    <string name="label_colleague_request">🔔 Permintaan Rekan</string>
+    <string name="label_someone_wants_to_connect">Seseorang ingin terhubung</string>
+    <string name="label_briefing_and_handover">🔄 Briefing &amp; Handover</string>
+    <string name="label_start_handover_desc">Mulai handover dan lihat ringkasan klinis</string>
+    <string name="btn_accept">Terima</string>
+    <string name="btn_reject">Tolak</string>
+
+    <string name="connection_request_desc_template">%s ingin terhubung</string>
+    <string name="handover_request_desc_template">%1$s ingin menyerahkan tanggung jawab pasien: %2$s</string>
+    <string name="toast_handover_accepted">Pasien berhasil diterima</string>
+    <string name="toast_handover_failed">Gagal menerima pasien</string>
+    <string name="toast_work_id_copied">ID Kerja berhasil disalin</string>
+
+    <!-- Menus & Dialogs -->
+    <string name="menu_view_profile">Lihat Profil Rekan Kerja</string>
+    <string name="menu_view_patients">Lihat Daftar Pasien</string>
+    <string name="menu_delete_colleague">Hapus Rekan Kerja</string>
+    <string name="dialog_delete_colleague_title">Hapus Rekan Kerja</string>
+    <string name="dialog_delete_colleague_message">Apakah Anda yakin ingin menghapus %s?</string>
+    <string name="dialog_select_language_title">Pilih Bahasa</string>
+    <string name="btn_delete">Hapus</string>
+    <string name="btn_cancel">Batal</string>
 
     <!-- IV Calculator -->
     <string name="iv_calculator_title">Kalkulator Tetesan Infus</string>
@@ -22,19 +56,27 @@
     <string name="result_drip_rate">%1$d gtt/menit</string>
 
     <!-- Vital Signs -->
-    <string name="vital_signs_title">Catatan Vital Sign</string>
-    <string name="add_vital_sign">Tambah Vital Sign</string>
+    <string name="vital_signs_title">Pemantauan Tanda Vital</string>
+    <string name="add_vital_sign">Tambah Tanda Vital</string>
     <string name="hint_systolic">Sistolik (mmHg)</string>
     <string name="hint_diastolic">Diastolik (mmHg)</string>
-    <string name="hint_pulse">Nadi (bpm)</string>
-    <string name="hint_temp">Suhu (°C)</string>
-    <string name="hint_resp">Pernapasan (bpm)</string>
-    <string name="hint_spo2">SpO2 (%)</string>
+    <string name="hint_pulse">Frekuensi Nadi (x/mnt)</string>
+    <string name="hint_temp">Suhu Tubuh (°C)</string>
+    <string name="hint_resp">Frekuensi Napas (x/mnt)</string>
+    <string name="hint_spo2">Saturasi Oksigen (SpO2 %)</string>
     <string name="btn_save">Simpan</string>
-    <string name="label_bp">TD: %1$d/%2$d</string>
-    <string name="label_pulse">N: %1$d</string>
-    <string name="label_temp">S: %1$.1f</string>
-    <string name="label_resp">R: %1$d</string>
+
+    <!-- Medical Labeling -->
+    <string name="label_bp">TD (mmHg)</string>
+    <string name="label_pulse">NADI (x/mnt)</string>
+    <string name="label_resp">NAPAS (x/mnt)</string>
+    <string name="label_temp">SUHU (°C)</string>
+    <string name="label_spo2">SpO2 (%%)</string>
+    <string name="label_ews_score">SKOR NEWS2</string>
+
+    <string name="risk_low">RISIKO RENDAH</string>
+    <string name="risk_medium">RISIKO SEDANG</string>
+    <string name="risk_high">RISIKO TINGGI</string>
 
     <!-- Tasks -->
     <string name="add_task_content_description">Tambah Tugas</string>

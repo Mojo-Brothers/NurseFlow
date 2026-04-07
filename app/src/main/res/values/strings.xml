@@ -8,14 +8,43 @@
 
     <!-- Home Screen -->
     <string name="greeting_nurse">Good Morning, Nurse</string>
-    <string name="shift_checklist">Shift Checklist</string>
+    <string name="greeting_hello_prefix">Hello</string>
+    <string name="home_subtitle">Ready for today?</string>
+    <string name="label_work_id">Your Work ID</string>
+    <string name="shift_checklist">Handover Checklist</string>
     <string name="core_mvp_tools">Core MVP Tools</string>
     <string name="tool_vitals">Vitals</string>
     <string name="tool_iv_calc">IV Calc</string>
     <string name="tool_ai_notes">AI Notes</string>
     <string name="tool_patients">Patients</string>
+    <string name="tool_colleagues">Colleagues</string>
+    <string name="label_my_team">My Team</string>
     <string name="action_general_notes">General Notes</string>
     <string name="action_export_pdf">Export PDF</string>
+
+    <string name="label_incoming_handover">📦 Incoming Handover</string>
+    <string name="label_colleague_request">🔔 Colleague Request</string>
+    <string name="label_someone_wants_to_connect">Someone wants to connect</string>
+    <string name="label_briefing_and_handover">🔄 Briefing &amp; Handover</string>
+    <string name="label_start_handover_desc">Start handover and view clinical summary</string>
+    <string name="btn_accept">Accept</string>
+    <string name="btn_reject">Reject</string>
+
+    <string name="connection_request_desc_template">%s wants to connect</string>
+    <string name="handover_request_desc_template">%1$s wants to handover responsibility of patient: %2$s</string>
+    <string name="toast_handover_accepted">Patient accepted successfully</string>
+    <string name="toast_handover_failed">Failed to accept patient</string>
+    <string name="toast_work_id_copied">Work ID copied</string>
+
+    <!-- Menus & Dialogs -->
+    <string name="menu_view_profile">View Colleague Profile</string>
+    <string name="menu_view_patients">View Patient List</string>
+    <string name="menu_delete_colleague">Delete Colleague</string>
+    <string name="dialog_delete_colleague_title">Delete Colleague</string>
+    <string name="dialog_delete_colleague_message">Are you sure you want to delete %s?</string>
+    <string name="dialog_select_language_title">Select Language</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_cancel">Cancel</string>
 
     <!-- IV Calculator -->
     <string name="iv_calculator_title">IV Drip Rate Calculator</string>

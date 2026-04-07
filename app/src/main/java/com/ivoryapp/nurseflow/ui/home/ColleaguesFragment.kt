@@ -54,14 +54,18 @@ class ColleaguesFragment : Fragment() {
         colleagueAdapter = ColleagueAdapter(
             onClick = { colleague ->
                 val bundle = Bundle().apply {
-                    putString("targetUid", colleague.uid)
-                    putString("targetName", colleague.name)
+                    putString("handoverTargetUid", colleague.uid)
+                    putString("handoverTargetName", colleague.name)
+                    putBoolean("isSelectionMode", true)
                 }
                 findNavController().navigate(R.id.action_colleaguesFragment_to_patientListFragment, bundle)
             },
             onLongClick = { colleague ->
-                val viewHolder = binding.rvColleagues.findViewHolderForAdapterPosition(colleagueAdapter.currentList.indexOf(colleague))
-                showColleaguePopupMenu(viewHolder?.itemView ?: binding.rvColleagues, colleague)
+                val index = colleagueAdapter.currentList.indexOf(colleague)
+                if (index != -1) {
+                    val viewHolder = binding.rvColleagues.findViewHolderForAdapterPosition(index)
+                    showColleaguePopupMenu(viewHolder?.itemView ?: binding.rvColleagues, colleague)
+                }
             }
         )
         binding.rvColleagues.adapter = colleagueAdapter
@@ -79,10 +83,7 @@ class ColleaguesFragment : Fragment() {
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                1 -> {
-                    Toast.makeText(requireContext(), "Profil: ${colleague.name}", Toast.LENGTH_SHORT).show()
-                    true
-                }
+                1 -> true
                 2 -> {
                     val bundle = Bundle().apply {
                         putString("targetUid", colleague.uid)
@@ -119,6 +120,7 @@ class ColleaguesFragment : Fragment() {
         firestore.collection("connections")
             .whereArrayContains("members", uid)
             .addSnapshotListener { snapshot, e ->
+                if (_binding == null) return@addSnapshotListener
                 if (e != null || snapshot == null) {
                     setLoading(false)
                     return@addSnapshotListener
@@ -148,6 +150,7 @@ class ColleaguesFragment : Fragment() {
         for (id in userIds) {
             firestore.collection("users").document(id).get()
                 .addOnSuccessListener { doc ->
+                    if (_binding == null) return@addOnSuccessListener
                     val colleague = Colleague(
                         uid = id,
                         name = doc.getString("name") ?: "Nurse",
@@ -164,10 +167,9 @@ class ColleaguesFragment : Fragment() {
                     }
                 }
                 .addOnFailureListener {
+                    if (_binding == null) return@addOnFailureListener
                     loadedCount++
-                    if (loadedCount == userIds.size) {
-                        setLoading(false)
-                    }
+                    if (loadedCount == userIds.size) setLoading(false)
                 }
         }
     }
@@ -181,68 +183,80 @@ class ColleaguesFragment : Fragment() {
             .whereEqualTo("userCode", inputCode)
             .get()
             .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val targetUid = documents.documents[0].id
-                    
-                    if (targetUid == uid) {
-                        Toast.makeText(requireContext(), "Ini ID Anda sendiri", Toast.LENGTH_SHORT).show()
-                        setLoading(false)
-                        return@addOnSuccessListener
-                    }
-                    
-                    // Check if already connected
-                    firestore.collection("connections")
-                        .whereArrayContains("members", uid)
-                        .get()
-                        .addOnSuccessListener { connDocs ->
-                            val alreadyConnected = connDocs.any { 
-                                val members = it.get("members") as? List<String>
-                                members?.contains(targetUid) == true
-                            }
-                            
-                            if (alreadyConnected) {
-                                Toast.makeText(requireContext(), "Sudah terhubung dengan rekan ini", Toast.LENGTH_SHORT).show()
-                                setLoading(false)
-                                return@addOnSuccessListener
-                            }
-
-                            val requestData = hashMapOf(
-                                "fromUid" to uid,
-                                "fromName" to name,
-                                "toUid" to targetUid,
-                                "status" to "pending",
-                                "createdAt" to FieldValue.serverTimestamp()
-                            )
-
-                            firestore.collection("requests").add(requestData)
-                                .addOnSuccessListener {
-                                    // Kirim notifikasi ke rekan kerja
-                                    val notificationData = hashMapOf(
-                                        "userId" to targetUid,
-                                        "title" to "Permintaan Rekan Kerja",
-                                        "message" to "$name ingin menambahkan Anda sebagai rekan kerja.",
-                                        "type" to "FRIEND_REQUEST",
-                                        "fromUid" to uid,
-                                        "status" to "pending",
-                                        "timestamp" to FieldValue.serverTimestamp(),
-                                        "isRead" to false
-                                    )
-                                    
-                                    firestore.collection("notifications").add(notificationData)
-                                        .addOnSuccessListener {
-                                            Toast.makeText(requireContext(), "Permintaan dikirim!", Toast.LENGTH_SHORT).show()
-                                            binding.etMemberId.text?.clear()
-                                            setLoading(false)
-                                        }
-                                }
-                        }
-                } else {
+                if (_binding == null) return@addOnSuccessListener
+                if (documents.isEmpty) {
                     Toast.makeText(requireContext(), "ID tidak ditemukan", Toast.LENGTH_SHORT).show()
                     setLoading(false)
+                    return@addOnSuccessListener
                 }
+
+                val targetUid = documents.documents[0].id
+                if (targetUid == uid) {
+                    Toast.makeText(requireContext(), "Ini ID Anda sendiri", Toast.LENGTH_SHORT).show()
+                    setLoading(false)
+                    return@addOnSuccessListener
+                }
+
+                // Cek apakah sudah ada permintaan PENDING
+                firestore.collection("requests")
+                    .whereEqualTo("fromUid", uid)
+                    .whereEqualTo("toUid", targetUid)
+                    .whereEqualTo("status", "pending")
+                    .get()
+                    .addOnSuccessListener { pendingDocs ->
+                        if (!pendingDocs.isEmpty) {
+                            Toast.makeText(requireContext(), "Permintaan sudah pernah dikirim dan masih pending", Toast.LENGTH_SHORT).show()
+                            setLoading(false)
+                            return@addOnSuccessListener
+                        }
+
+                        // Cek apakah sudah terhubung
+                        firestore.collection("connections")
+                            .whereArrayContains("members", uid)
+                            .get()
+                            .addOnSuccessListener { connDocs ->
+                                val alreadyConnected = connDocs.any { 
+                                    (it.get("members") as? List<*>)?.contains(targetUid) == true 
+                                }
+                                
+                                if (alreadyConnected) {
+                                    Toast.makeText(requireContext(), "Sudah terhubung", Toast.LENGTH_SHORT).show()
+                                    setLoading(false)
+                                    return@addOnSuccessListener
+                                }
+
+                                val requestData = hashMapOf(
+                                    "fromUid" to uid,
+                                    "fromName" to name,
+                                    "toUid" to targetUid,
+                                    "status" to "pending",
+                                    "createdAt" to FieldValue.serverTimestamp()
+                                )
+
+                                firestore.collection("requests").add(requestData)
+                                    .addOnSuccessListener {
+                                        val notificationData = hashMapOf(
+                                            "userId" to targetUid,
+                                            "title" to "Permintaan Rekan Kerja",
+                                            "message" to "$name ingin menambahkan Anda sebagai rekan kerja.",
+                                            "type" to "FRIEND_REQUEST",
+                                            "fromUid" to uid,
+                                            "status" to "pending",
+                                            "timestamp" to FieldValue.serverTimestamp(),
+                                            "isRead" to false
+                                        )
+                                        firestore.collection("notifications").add(notificationData)
+                                            .addOnSuccessListener {
+                                                Toast.makeText(requireContext(), "Permintaan dikirim!", Toast.LENGTH_SHORT).show()
+                                                binding.etMemberId.text?.clear()
+                                                setLoading(false)
+                                            }
+                                    }
+                            }
+                    }
             }
             .addOnFailureListener {
-                setLoading(false)
+                if (_binding != null) setLoading(false)
             }
     }
 
@@ -250,9 +264,7 @@ class ColleaguesFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Hapus Rekan Kerja")
             .setMessage("Apakah Anda yakin ingin memutuskan koneksi dengan ${colleague.name}?")
-            .setPositiveButton("Hapus") { _, _ ->
-                deleteConnection(colleague.uid)
-            }
+            .setPositiveButton("Hapus") { _, _ -> deleteConnection(colleague.uid) }
             .setNegativeButton("Batal", null)
             .show()
     }
@@ -260,34 +272,27 @@ class ColleaguesFragment : Fragment() {
     private fun deleteConnection(targetUid: String) {
         val uid = auth.currentUser?.uid ?: return
         setLoading(true)
-
         firestore.collection("connections")
             .whereArrayContains("members", uid)
             .get()
             .addOnSuccessListener { snapshot ->
                 val docToDelete = snapshot.documents.find { 
-                    val members = it.get("members") as? List<String>
-                    members?.contains(targetUid) == true
+                    (it.get("members") as? List<*>)?.contains(targetUid) == true 
                 }
-
-                docToDelete?.reference?.delete()
-                    ?.addOnSuccessListener {
+                docToDelete?.reference?.delete()?.addOnSuccessListener {
+                    if (_binding != null) {
                         Toast.makeText(requireContext(), "Koneksi dihapus", Toast.LENGTH_SHORT).show()
                         setLoading(false)
                     }
-                    ?.addOnFailureListener {
-                        Toast.makeText(requireContext(), "Gagal menghapus koneksi", Toast.LENGTH_SHORT).show()
-                        setLoading(false)
-                    }
-            }
-            .addOnFailureListener {
-                setLoading(false)
+                }
             }
     }
 
     private fun setLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        binding.btnConnect.isEnabled = !isLoading
+        _binding?.let {
+            it.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            it.btnConnect.isEnabled = !isLoading
+        }
     }
 
     override fun onDestroyView() {

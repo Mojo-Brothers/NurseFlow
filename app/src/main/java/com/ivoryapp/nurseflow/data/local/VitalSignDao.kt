@@ -13,8 +13,8 @@ interface VitalSignDao {
     suspend fun insertVitalSign(vitalSign: VitalSign): Long
 
     @Update
-    suspend fun updateVitalSign(vitalSign: VitalSign)
+    suspend fun updateVitalSign(vitalSign: VitalSign): Int
 
     @Delete
-    suspend fun deleteVitalSign(vitalSign: VitalSign)
+    suspend fun deleteVitalSign(vitalSign: VitalSign): Int
 }

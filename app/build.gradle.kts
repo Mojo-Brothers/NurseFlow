@@ -63,10 +63,11 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    // Firebase & Auth & Firestore
+    // Firebase & Auth & Firestore & Config
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.config.ktx)
     implementation(libs.play.services.auth)
 
     // Image Loading

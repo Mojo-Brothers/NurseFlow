@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_background">
+    android:background="@color/surface_background"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -16,113 +17,88 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Briefing Shift"
-            app:titleCentered="true" />
-
-        <LinearLayout
-            android:id="@+id/layout_start_handover"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:gravity="center"
-            android:visibility="visible">
-
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/ic_notifications"
-                app:tint="@color/primary_purple"
-                android:alpha="0.5"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Siap untuk operan?"
-                android:textSize="20sp"
-                android:fontFamily="sans-serif-black"
-                android:layout_marginTop="16dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sistem akan otomatis merangkum data klinis pasien untuk shift berikutnya."
-                android:textAlignment="center"
-                android:textColor="@color/text_secondary"
-                android:layout_marginTop="8dp"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_start_handover"
-                android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:layout_marginTop="32dp"
-                android:text="Mulai Operan"
-                app:cornerRadius="16dp"
-                android:backgroundTint="@color/primary_purple"
-                android:textSize="18sp"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-black"/>
-
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_session_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:visibility="gone">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_shift_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Shift Pagi"
-                style="@style/Widget.Material3.Chip.Assist"/>
-
-            <TextView
-                android:id="@+id/tv_session_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/text_secondary"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/chip_shift_type"
-                app:layout_constraintBottom_toBottomOf="@id/chip_shift_type"
-                tools:text="14:00 - Sekarang"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+            app:title="Handover"
+            app:titleCentered="true"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_handover_items"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="8dp"
-        android:visibility="gone"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/item_handover_patient" />
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btn_finalize_handover"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="24dp"
-        android:text="Selesai Operan"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:backgroundTint="@color/status_done"
-        app:icon="@drawable/ic_copy"
-        app:iconTint="@color/white" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/layout_start_handover"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:visibility="visible"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:alpha="0.5"
+                    android:src="@drawable/ic_group"
+                    app:tint="@color/primary_purple" />
+
+                <TextView
+                    android:id="@+id/tv_handover_title_empty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif-black"
+                    android:text="Belum ada Handover aktif"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Kirim penyerahan tanggung jawab pasien ke rekan kerja Anda."
+                    android:textAlignment="center"
+                    android:textColor="@color/text_secondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_start_handover"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginTop="32dp"
+                    android:backgroundTint="@color/primary_purple"
+                    android:fontFamily="sans-serif-black"
+                    android:text="Pilih Rekan Kerja"
+                    android:textAllCaps="false"
+                    android:textSize="18sp"
+                    app:cornerRadius="16dp" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_handover_items"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:padding="8dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:listitem="@layout/item_handover_patient" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

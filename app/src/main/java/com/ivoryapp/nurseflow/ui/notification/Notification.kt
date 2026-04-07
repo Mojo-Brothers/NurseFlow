@@ -1,6 +1,7 @@
 package com.ivoryapp.nurseflow.ui.notification
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
 
 data class Notification(
     val id: String = "",
@@ -10,15 +11,22 @@ data class Notification(
     val type: NotificationType = NotificationType.SYSTEM,
     val timestamp: Timestamp? = null,
     val fromUid: String? = null,
-    val patientId: Int? = null, // Link to specific patient for clinical alerts
-    var aiSummary: String? = null, // Ringkasan AI yang dikirim rekan
-    val status: String? = null, 
-    val isRead: Boolean = false
+    val fromName: String? = null,
+    val handoverId: String? = null,
+    val patientId: Int? = null,
+    val taskCount: Int? = null,
+    var aiSummary: String? = null,
+    val status: String? = "pending", // pending, accepted, rejected
+    
+    @get:PropertyName("isRead")
+    @set:PropertyName("isRead")
+    var isRead: Boolean = false
 )
 
 enum class NotificationType {
     SYSTEM,
     APP,
     FRIEND_REQUEST,
+    HANDOVER_REQUEST,
     CLINICAL_ALERT
 }

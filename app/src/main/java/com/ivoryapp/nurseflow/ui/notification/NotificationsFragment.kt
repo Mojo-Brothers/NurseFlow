@@ -1,6 +1,7 @@
 package com.ivoryapp.nurseflow.ui.notification
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ class NotificationsFragment : Fragment() {
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private lateinit var adapter: NotificationsAdapter
+    private val TAG = "NotificationsFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -98,17 +100,15 @@ class NotificationsFragment : Fragment() {
                 binding.progressBar.visibility = View.GONE
                 
                 if (e != null) {
-                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "Error loading notifications: ", e)
                     return@addSnapshotListener
                 }
 
                 val notifications = snapshot?.documents?.mapNotNull { doc ->
-                    val notif = doc.toObject(Notification::class.java)?.copy(id = doc.id)
-                    notif?.apply {
-                        // Pastikan aiSummary terisi dari Firestore
-                        if (aiSummary == null) {
-                            aiSummary = doc.getString("aiSummary")
-                        }
+                    try {
+                        doc.toObject(Notification::class.java)?.copy(id = doc.id)
+                    } catch (ex: Exception) {
+                        null
                     }
                 } ?: emptyList()
 
@@ -136,17 +136,64 @@ class NotificationsFragment : Fragment() {
 
     private fun acceptRequest(notification: Notification) {
         val uid = auth.currentUser?.uid ?: return
+        val myName = auth.currentUser?.displayName ?: "Rekan Perawat"
         val fromUid = notification.fromUid ?: return
 
-        firestore.collection("requests").whereEqualTo("fromUid", fromUid).whereEqualTo("toUid", uid).get()
-            .addOnSuccessListener { snapshot ->
-                snapshot.documents.firstOrNull()?.reference?.update("status", "accepted")
-            }
+        Toast.makeText(requireContext(), "Menerima permintaan...", Toast.LENGTH_SHORT).show()
 
-        firestore.collection("notifications").document(notification.id)
-            .update("status", "accepted", "isRead", true)
-            .addOnSuccessListener {
-                createConnection(uid, fromUid)
+        // Ambil semua notifikasi dari pengirim yang sama untuk ditandai SELESAI
+        firestore.collection("notifications")
+            .whereEqualTo("userId", uid)
+            .whereEqualTo("fromUid", fromUid)
+            .whereEqualTo("status", "pending")
+            .get()
+            .addOnSuccessListener { notifSnapshot ->
+                
+                // Cari permintaan di koleksi requests
+                firestore.collection("requests")
+                    .whereEqualTo("fromUid", fromUid)
+                    .whereEqualTo("toUid", uid)
+                    .whereEqualTo("status", "pending")
+                    .get()
+                    .addOnSuccessListener { reqSnapshot ->
+                        
+                        firestore.runBatch { batch ->
+                            // 1. Update status semua notifikasi terkait
+                            for (notifDoc in notifSnapshot.documents) {
+                                batch.update(notifDoc.reference, 
+                                    "status", "accepted", 
+                                    "isRead", true)
+                            }
+
+                            // 2. Update status di koleksi requests
+                            for (reqDoc in reqSnapshot.documents) {
+                                batch.update(reqDoc.reference, "status", "accepted")
+                            }
+
+                            // 3. Buat koneksi baru
+                            val connectionData = hashMapOf(
+                                "members" to listOf(uid, fromUid),
+                                "createdAt" to FieldValue.serverTimestamp()
+                            )
+                            batch.set(firestore.collection("connections").document(), connectionData)
+
+                            // 4. Kirim notifikasi balik ke User A (Pengirim)
+                            val backNotification = hashMapOf(
+                                "userId" to fromUid,
+                                "title" to "Permintaan Diterima",
+                                "message" to "$myName telah menerima permintaan rekan kerja Anda.",
+                                "type" to "SYSTEM",
+                                "timestamp" to FieldValue.serverTimestamp(),
+                                "isRead" to false
+                            )
+                            batch.set(firestore.collection("notifications").document(), backNotification)
+
+                        }.addOnSuccessListener {
+                            Toast.makeText(requireContext(), "Berhasil terhubung!", Toast.LENGTH_SHORT).show()
+                        }.addOnFailureListener { e ->
+                            Toast.makeText(requireContext(), "Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
             }
     }
 
@@ -154,22 +201,33 @@ class NotificationsFragment : Fragment() {
         val uid = auth.currentUser?.uid ?: return
         val fromUid = notification.fromUid ?: return
 
-        firestore.collection("requests").whereEqualTo("fromUid", fromUid).whereEqualTo("toUid", uid).get()
-            .addOnSuccessListener { snapshot ->
-                snapshot.documents.firstOrNull()?.reference?.update("status", "rejected")
+        Toast.makeText(requireContext(), "Menolak permintaan...", Toast.LENGTH_SHORT).show()
+
+        firestore.collection("notifications")
+            .whereEqualTo("userId", uid)
+            .whereEqualTo("fromUid", fromUid)
+            .whereEqualTo("status", "pending")
+            .get()
+            .addOnSuccessListener { notifSnapshot ->
+                firestore.collection("requests")
+                    .whereEqualTo("fromUid", fromUid)
+                    .whereEqualTo("toUid", uid)
+                    .get()
+                    .addOnSuccessListener { reqSnapshot ->
+                        firestore.runBatch { batch ->
+                            for (notifDoc in notifSnapshot.documents) {
+                                batch.update(notifDoc.reference, 
+                                    "status", "rejected", 
+                                    "isRead", true)
+                            }
+                            for (reqDoc in reqSnapshot.documents) {
+                                batch.update(reqDoc.reference, "status", "rejected")
+                            }
+                        }.addOnSuccessListener {
+                            Toast.makeText(requireContext(), "Permintaan ditolak", Toast.LENGTH_SHORT).show()
+                        }
+                    }
             }
-
-        firestore.collection("notifications").document(notification.id)
-            .update("status", "rejected", "isRead", true)
-    }
-
-    private fun createConnection(uid1: String, uid2: String) {
-        val connectionData = hashMapOf(
-            "members" to listOf(uid1, uid2),
-            "createdAt" to FieldValue.serverTimestamp()
-        )
-
-        firestore.collection("connections").add(connectionData)
     }
 
     override fun onDestroyView() {

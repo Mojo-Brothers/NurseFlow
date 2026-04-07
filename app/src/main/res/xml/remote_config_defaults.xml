@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <!-- Home Screen -->
+    <entry>
+        <key>greeting_nurse_en</key>
+        <value>Good Morning, Nurse</value>
+    </entry>
+    <entry>
+        <key>greeting_nurse_in</key>
+        <value>Selamat Pagi, Rekan Perawat</value>
+    </entry>
+
+    <!-- CTA / Button Storytelling -->
+    <entry>
+        <key>btn_ai_notes_en</key>
+        <value>Analyze with AI</value>
+    </entry>
+    <entry>
+        <key>btn_ai_notes_in</key>
+        <value>Analisis dengan AI</value>
+    </entry>
+</defaultsMap>

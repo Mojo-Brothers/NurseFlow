@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
@@ -32,6 +34,8 @@ class PatientListFragment : Fragment() {
     private var allPatientsList: List<Patient> = emptyList()
     private var isColleagueView: Boolean = false
     private var isSelectionMode: Boolean = false
+    private var handoverTargetUid: String? = null
+    private var handoverTargetName: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,10 +51,15 @@ class PatientListFragment : Fragment() {
 
         val targetUid = arguments?.getString("targetUid")
         val targetName = arguments?.getString("targetName")
-        isSelectionMode = arguments?.getBoolean("isSelectionMode") ?: false
+        
+        // Cek apakah dalam mode handover (Berasal dari pemilihan rekan)
+        handoverTargetUid = arguments?.getString("handoverTargetUid")
+        handoverTargetName = arguments?.getString("handoverTargetName")
+        
+        isSelectionMode = (arguments?.getBoolean("isSelectionMode") ?: false) || (handoverTargetUid != null)
         isColleagueView = targetUid != null
 
-        setupToolbar(targetName)
+        setupToolbar(targetName ?: handoverTargetName)
         setupRecyclerView()
         setupClickListeners()
         setupSearchView()
@@ -69,7 +78,16 @@ class PatientListFragment : Fragment() {
     }
 
     private fun setupToolbar(targetName: String?) {
-        binding.toolbar.title = if (isSelectionMode) "Pilih Pasien" else if (targetName != null) "Pasien $targetName" else "Daftar Pasien Anda"
+        binding.toolbar.title = if (handoverTargetUid != null) {
+            "Pilih Pasien untuk $targetName"
+        } else if (isSelectionMode) {
+            "Pilih Pasien"
+        } else if (targetName != null) {
+            "Pasien $targetName"
+        } else {
+            "Daftar Pasien Anda"
+        }
+        
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
@@ -77,8 +95,11 @@ class PatientListFragment : Fragment() {
 
     private fun setupRecyclerView() {
         patientAdapter = PatientAdapter { patient ->
-            if (isSelectionMode) {
-                // Balik ke AI Notes dengan membawa patientId
+            if (handoverTargetUid != null) {
+                // Alur: Pilih Rekan -> Pilih Pasien -> Tambah Task
+                showAddTaskDialog(patient, handoverTargetUid!!, handoverTargetName ?: "Rekan")
+            } else if (isSelectionMode) {
+                // Digunakan untuk AI Notes
                 val bundle = Bundle().apply {
                     putInt("patientId", patient.id)
                 }
@@ -102,7 +123,10 @@ class PatientListFragment : Fragment() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> navigateToVitals(patient)
-                    1 -> showColleagueSelectionForHandover(patient)
+                    1 -> {
+                        // Jika dari sini, tetap alur lama: Pilih Pasien -> Pilih Rekan
+                        showColleagueSelectionForHandover(patient)
+                    }
                 }
             }
             .show()
@@ -125,32 +149,54 @@ class PatientListFragment : Fragment() {
                 .setTitle("Handover ${patient.name} ke:")
                 .setItems(names) { _, which ->
                     val selectedColleague = colleagues[which]
-                    confirmHandover(patient, selectedColleague.first, selectedColleague.second)
+                    showAddTaskDialog(patient, selectedColleague.first, selectedColleague.second)
                 }
                 .show()
         }
     }
 
-    private fun confirmHandover(patient: Patient, toUid: String, toName: String) {
+    private fun showAddTaskDialog(patient: Patient, toUid: String, toName: String) {
+        val layout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 40, 50, 20)
+        }
+
+        val taskInputs = mutableListOf<EditText>()
+        
+        fun addTaskField() {
+            val editText = EditText(requireContext()).apply {
+                hint = "Ketik tugas lanjutan..."
+                setSingleLine(true)
+            }
+            layout.addView(editText)
+            taskInputs.add(editText)
+        }
+
+        repeat(3) { addTaskField() }
+
         AlertDialog.Builder(requireContext())
-            .setTitle("Konfirmasi Handover")
-            .setMessage("Kirim permintaan handover untuk ${patient.name} kepada $toName?")
-            .setPositiveButton("Kirim") { _, _ ->
-                performHandover(patient, toUid)
+            .setTitle("Tugas untuk $toName")
+            .setMessage("Berikan instruksi/tugas tambahan untuk ${patient.name}")
+            .setView(layout)
+            .setPositiveButton("Kirim Handover") { _, _ ->
+                val tasks = taskInputs.map { it.text.toString() }.filter { it.isNotBlank() }
+                performHandover(patient, toUid, tasks)
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
-    private fun performHandover(patient: Patient, toUid: String) {
+    private fun performHandover(patient: Patient, toUid: String, tasks: List<String>) {
         val app = requireActivity().application as NurseFlowApplication
         val fromName = FirebaseAuth.getInstance().currentUser?.displayName ?: "Nurse"
         
         viewLifecycleOwner.lifecycleScope.launch {
             binding.progressBar.visibility = View.VISIBLE
             try {
-                app.handoverRepository.sendPatientHandover(patient, toUid, fromName)
-                Toast.makeText(requireContext(), "Permintaan handover dikirim", Toast.LENGTH_SHORT).show()
+                app.handoverRepository.createHandoverRequest(patient, toUid, fromName, tasks)
+                Toast.makeText(requireContext(), "Permintaan handover dikirim!", Toast.LENGTH_SHORT).show()
+                // Kembali ke halaman handover utama
+                findNavController().popBackStack(R.id.handoverFragment, false)
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Gagal mengirim handover", Toast.LENGTH_SHORT).show()
             } finally {

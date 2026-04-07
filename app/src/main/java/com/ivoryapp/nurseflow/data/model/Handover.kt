@@ -1,42 +1,42 @@
 package com.ivoryapp.nurseflow.data.model
 
 import com.google.firebase.Timestamp
-import java.util.UUID
+import com.google.firebase.firestore.PropertyName
 
-data class ShiftSession(
-    val id: String = "",
-    val shiftType: String = "", // Pagi, Siang, Malam
-    val startTime: Timestamp = Timestamp.now(),
-    val endTime: Timestamp? = null,
-    val createdBy: String = "",
-    val fromUid: String = "", // UID perawat pemberi operan
-    val teamMembers: List<String> = emptyList(),
-    val status: String = "ACTIVE" // ACTIVE, COMPLETED
-)
+enum class HandoverPriority {
+    LOW, MEDIUM, HIGH
+}
 
-data class PatientHandover(
+data class Handover(
     val id: String = "",
-    val sessionId: String = "",
     val patientId: Int = 0,
     val patientName: String = "",
-    val roomNumber: String = "",
-    val summary: String = "",
-    val latestNews2Score: Int = 0,
-    val priority: HandoverPriority = HandoverPriority.LOW,
-    val tasks: List<HandoverInstruction> = emptyList(),
+    val fromUid: String = "",
+    val fromName: String = "",
+    val toUid: String = "",
+    val status: String = "PENDING", // PENDING, ACCEPTED, REJECTED, COMPLETED
     val notes: String = "",
-    val isFlagged: Boolean = false,
-    val isDiscussed: Boolean = false,
-    val lastVitalsSummary: String = "",
+    val timestamp: Timestamp = Timestamp.now(),
+    val acceptedAt: Timestamp? = null
+)
+
+data class HandoverTask(
+    val id: String = "",
+    val handoverId: String = "",
+    val title: String = "",
+    @get:PropertyName("isCompleted")
+    @set:PropertyName("isCompleted")
+    var isCompleted: Boolean = false,
+    val createdBy: String = "",
     val timestamp: Timestamp = Timestamp.now()
 )
 
-data class HandoverInstruction(
-    val id: String = UUID.randomUUID().toString(),
-    val description: String = "",
-    val isCompleted: Boolean = false
+data class ShiftSession(
+    val id: String = "",
+    val shiftType: String = "",
+    val fromUid: String = "",
+    val createdBy: String = "",
+    val status: String = "ACTIVE", // ACTIVE, COMPLETED
+    val startTime: Timestamp = Timestamp.now(),
+    val endTime: Timestamp? = null
 )
-
-enum class HandoverPriority {
-    LOW, MEDIUM, HIGH, CRITICAL
-}

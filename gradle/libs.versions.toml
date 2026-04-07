@@ -1,7 +1,7 @@
 [versions]
-agp = "8.13.2"
-kotlin = "2.0.21"
-ksp = "2.0.21-1.0.28"
+agp = "9.1.0"
+kotlin = "2.2.10"
+ksp = "2.3.2"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -10,8 +10,8 @@ lifecycle = "2.8.7"
 appcompat = "1.7.0"
 material = "1.12.0"
 constraintlayout = "2.2.0"
-navigation = "2.8.5"
-room = "2.6.1"
+navigation = "2.9.6"
+room = "2.7.0-alpha11"
 googleServices = "4.4.2"
 firebaseBom = "33.7.0"
 playServicesAuth = "21.3.0"
@@ -38,6 +38,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
+firebase-config-ktx = { group = "com.google.firebase", name = "firebase-config-ktx" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 mp-android-chart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpAndroidChart" }

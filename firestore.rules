@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Fungsi pembantu untuk mengecek apakah user sudah login
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Koleksi User: Semua user terautentikasi bisa cari user lain, tapi edit hanya milik sendiri
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Koleksi Connections: Hanya anggota di dalam 'members' yang bisa melihat/menghapus
+    match /connections/{connectionId} {
+      allow read, delete: if isAuthenticated() && request.auth.uid in resource.data.members;
+      allow create: if isAuthenticated();
+    }
+
+    // Koleksi Requests: Hanya pengirim atau penerima yang bisa berinteraksi
+    match /requests/{requestId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid);
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.fromUid;
+      allow update, delete: if isAuthenticated() && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid);
+    }
+
+    // Koleksi Notifications: User hanya bisa baca notifikasinya sendiri
+    match /notifications/{notificationId} {
+      allow read, update, delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated();
+    }
+
+    // Koleksi Patients & Vital Signs: Dapat diakses oleh user terautentikasi
+    match /patients/{patientId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /vital_signs/{vitalId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Koleksi Handover: Akses baca dibatasi hanya untuk Pengirim dan Penerima
+    match /handovers/{handoverId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid);
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.fromUid;
+      allow update: if isAuthenticated() && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid);
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.fromUid;
+    }
+
+    // Koleksi Handover Tasks: Checklist tugas yang terhubung dengan handover
+    match /handover_tasks/{taskId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Koleksi pendukung lainnya
+    match /shift_sessions/{sessionId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

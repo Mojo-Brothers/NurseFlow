@@ -86,6 +86,16 @@
             android:name="isSelectionMode"
             app:argType="boolean"
             android:defaultValue="false" />
+        <argument
+            android:name="handoverTargetUid"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="handoverTargetName"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
         <action
             android:id="@+id/action_patientListFragment_to_vitalSignFragment"
             app:destination="@id/vitalSignFragment" />
@@ -158,8 +168,5 @@
         <action
             android:id="@+id/action_handoverFragment_to_patientListFragment"
             app:destination="@id/patientListFragment" />
-        <action
-            android:id="@+id/action_handoverFragment_to_colleaguesFragment"
-            app:destination="@id/colleaguesFragment" />
     </fragment>
 </navigation>

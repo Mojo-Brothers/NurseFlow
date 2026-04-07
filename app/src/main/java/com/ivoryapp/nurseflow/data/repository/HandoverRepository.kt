@@ -4,12 +4,13 @@ import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.ivoryapp.nurseflow.data.model.HandoverPriority
-import com.ivoryapp.nurseflow.data.model.PatientHandover
-import com.ivoryapp.nurseflow.data.model.ShiftSession
+import com.google.firebase.firestore.Query
+import com.ivoryapp.nurseflow.data.model.Handover
+import com.ivoryapp.nurseflow.data.model.HandoverTask
 import com.ivoryapp.nurseflow.data.model.Patient
-import com.ivoryapp.nurseflow.util.VitalSignAnalyzer
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class HandoverRepository(
@@ -20,42 +21,82 @@ class HandoverRepository(
     private val auth = FirebaseAuth.getInstance()
     private val TAG = "HandoverRepository"
 
-    // Fungsi baru untuk mengirim handover per pasien dari Perawat A ke Perawat B
-    suspend fun sendPatientHandover(patient: Patient, toUid: String, fromName: String) {
+    // MENGIRIM HANDOVER BESERTA TASK LANJUTAN
+    suspend fun createHandoverRequest(patient: Patient, toUid: String, fromName: String, tasks: List<String>) {
         val fromUid = auth.currentUser?.uid ?: return
         
-        val handoverRequest = hashMapOf(
-            "patientId" to patient.id,
-            "patientName" to patient.name,
-            "roomNumber" to patient.roomNumber,
-            "fromUid" to fromUid,
-            "fromName" to fromName,
-            "toUid" to toUid,
-            "status" to "PENDING",
-            "timestamp" to Timestamp.now()
+        val handoverRef = firestore.collection("handovers").document()
+        val handover = Handover(
+            id = handoverRef.id,
+            patientId = patient.id,
+            patientName = patient.name,
+            fromUid = fromUid,
+            fromName = fromName,
+            toUid = toUid,
+            status = "PENDING",
+            timestamp = Timestamp.now()
         )
 
         try {
-            firestore.collection("handover_requests").add(handoverRequest).await()
-            Log.d(TAG, "Handover request sent for patient: ${patient.name}")
+            firestore.runTransaction { transaction ->
+                // 1. Simpan Dokumen Handover Utama
+                transaction.set(handoverRef, handover)
+
+                // 2. Simpan Daftar Tugas Lanjutan (Checklist)
+                tasks.forEach { taskTitle ->
+                    if (taskTitle.isNotBlank()) {
+                        val taskRef = firestore.collection("handover_tasks").document()
+                        val task = HandoverTask(
+                            id = taskRef.id,
+                            handoverId = handoverRef.id,
+                            title = taskTitle,
+                            isCompleted = false,
+                            createdBy = fromUid,
+                            timestamp = Timestamp.now()
+                        )
+                        transaction.set(taskRef, task)
+                    }
+                }
+
+                // 3. Simpan Notifikasi untuk Perawat B
+                val notificationRef = firestore.collection("notifications").document()
+                val notificationData = hashMapOf(
+                    "userId" to toUid,
+                    "title" to "Permintaan Handover",
+                    "message" to "$fromName ingin menyerahkan tanggung jawab pasien ${patient.name}. Ada ${tasks.size} tugas lanjutan.",
+                    "type" to "HANDOVER_REQUEST",
+                    "fromUid" to fromUid,
+                    "fromName" to fromName,
+                    "handoverId" to handoverRef.id,
+                    "patientId" to patient.id,
+                    "patientName" to patient.name,
+                    "taskCount" to tasks.size,
+                    "status" to "pending",
+                    "timestamp" to Timestamp.now(),
+                    "isRead" to false
+                )
+                transaction.set(notificationRef, notificationData)
+            }.await()
+            Log.d(TAG, "Handover request with tasks created successfully")
         } catch (e: Exception) {
-            Log.e(TAG, "Error sending handover: ${e.message}")
+            Log.e(TAG, "Error creating handover: ${e.message}")
             throw e
         }
     }
 
-    // Fungsi untuk menerima (Accept) handover oleh Perawat B
-    suspend fun acceptHandoverRequest(requestId: String, patientId: Int) {
+    // TERIMA HANDOVER (Atomic Transaction: Pindah Ownership + Update Status)
+    suspend fun acceptHandoverRequest(handoverId: String, patientId: Int) {
         val uid = auth.currentUser?.uid ?: return
         try {
-            firestore.runBatch { batch ->
-                // 1. Ubah ownerUid pasien
+            firestore.runTransaction { transaction ->
+                val handoverRef = firestore.collection("handovers").document(handoverId)
                 val patientRef = firestore.collection("patients").document(patientId.toString())
-                batch.update(patientRef, "ownerUid", uid, "updatedAt", System.currentTimeMillis())
 
-                // 2. Tandai request sebagai ACCEPTED
-                val requestRef = firestore.collection("handover_requests").document(requestId)
-                batch.update(requestRef, "status", "ACCEPTED")
+                // Update Status Handover
+                transaction.update(handoverRef, "status", "ACCEPTED", "acceptedAt", Timestamp.now())
+                
+                // PINDAH TANGGUNG JAWAB (Ownership Transfer)
+                transaction.update(patientRef, "ownerUid", uid, "lastHandoverId", handoverId)
             }.await()
         } catch (e: Exception) {
             Log.e(TAG, "Error accepting handover: ${e.message}")
@@ -63,10 +104,9 @@ class HandoverRepository(
         }
     }
 
-    // Fungsi untuk menolak (Reject) handover
-    suspend fun rejectHandoverRequest(requestId: String) {
+    suspend fun rejectHandoverRequest(handoverId: String) {
         try {
-            firestore.collection("handover_requests").document(requestId)
+            firestore.collection("handovers").document(handoverId)
                 .update("status", "REJECTED")
                 .await()
         } catch (e: Exception) {
@@ -74,100 +114,116 @@ class HandoverRepository(
         }
     }
 
-    // --- Shift Session Methods ---
+    // Ambil daftar handover aktif (ACCEPTED) untuk user saat ini
+    fun getActiveHandovers(): Flow<List<Handover>> = callbackFlow {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
 
-    suspend fun startNewSession(shiftType: String, fromColleagueUid: String? = null) {
+        val listener = firestore.collection("handovers")
+            .whereIn("status", listOf("ACCEPTED", "PENDING"))
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e(TAG, "Listen failed: $e")
+                    return@addSnapshotListener
+                }
+
+                val handovers = snapshot?.documents?.mapNotNull { it.toObject(Handover::class.java) } ?: emptyList()
+                val filtered = handovers.filter { it.fromUid == uid || it.toUid == uid }
+                trySend(filtered)
+            }
+        
+        awaitClose { listener.remove() }
+    }
+
+    // Realtime tasks untuk sebuah handover
+    fun getHandoverTasks(handoverId: String): Flow<List<HandoverTask>> = callbackFlow {
+        val listener = firestore.collection("handover_tasks")
+            .whereEqualTo("handoverId", handoverId)
+            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, _ ->
+                val tasks = snapshot?.documents?.mapNotNull { it.toObject(HandoverTask::class.java) } ?: emptyList()
+                trySend(tasks)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun toggleTask(taskId: String, isCompleted: Boolean, handoverId: String) {
         val uid = auth.currentUser?.uid ?: return
-        val session = ShiftSession(
-            shiftType = shiftType,
-            fromUid = fromColleagueUid ?: "",
-            createdBy = uid,
-            status = "ACTIVE"
-        )
+        val name = auth.currentUser?.displayName ?: "Perawat"
+        
         try {
-            firestore.collection("shift_sessions").add(session).await()
+            firestore.runTransaction { transaction ->
+                val taskRef = firestore.collection("handover_tasks").document(taskId)
+                val handoverRef = firestore.collection("handovers").document(handoverId)
+                
+                val taskDoc = transaction.get(taskRef)
+                val taskTitle = taskDoc.getString("title") ?: "Tugas"
+                val handoverDoc = transaction.get(handoverRef)
+                val fromUid = handoverDoc.getString("fromUid") ?: return@runTransaction
+                
+                // 1. Update status task
+                transaction.update(taskRef, "isCompleted", isCompleted)
+                
+                // 2. Kirim notifikasi ke Perawat A jika task selesai
+                if (isCompleted) {
+                    val notifRef = firestore.collection("notifications").document()
+                    val notifData = hashMapOf(
+                        "userId" to fromUid,
+                        "title" to "Update Tugas Handover",
+                        "message" to "$taskTitle sudah dilakukan oleh $name",
+                        "type" to "SYSTEM",
+                        "timestamp" to Timestamp.now(),
+                        "isRead" to false
+                    )
+                    transaction.set(notifRef, notifData)
+                }
+            }.await()
         } catch (e: Exception) {
-            Log.e(TAG, "Error starting session: ${e.message}")
-            throw e
+            Log.e(TAG, "Error toggling task: ${e.message}")
         }
     }
 
-    suspend fun getActiveSession(): ShiftSession? {
-        val uid = auth.currentUser?.uid ?: return null
-        return try {
-            val snapshot = firestore.collection("shift_sessions")
-                .whereEqualTo("createdBy", uid)
-                .whereEqualTo("status", "ACTIVE")
-                .limit(1)
-                .get()
-                .await()
-            
-            if (snapshot.isEmpty) return null
-            snapshot.documents[0].toObject(ShiftSession::class.java)?.copy(id = snapshot.documents[0].id)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    suspend fun completeSession(sessionId: String) {
+    suspend fun completeHandover(handoverId: String) {
         try {
-            firestore.collection("shift_sessions").document(sessionId)
-                .update("status", "COMPLETED", "endTime", Timestamp.now())
+            firestore.collection("handovers").document(handoverId)
+                .update("status", "COMPLETED")
                 .await()
         } catch (e: Exception) {
-            Log.e(TAG, "Error completing session: ${e.message}")
-        }
-    }
-
-    // --- Handover Items Methods ---
-
-    suspend fun getHandoverItems(sessionId: String): List<PatientHandover> {
-        return try {
-            val snapshot = firestore.collection("handover_items")
-                .whereEqualTo("sessionId", sessionId)
-                .get()
-                .await()
-            snapshot.documents.map { doc ->
-                doc.toObject(PatientHandover::class.java)!!.copy(id = doc.id)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting handover items: ${e.message}")
-            emptyList()
-        }
-    }
-
-    suspend fun updateHandoverItem(item: PatientHandover) {
-        try {
-            if (item.id.isNotEmpty()) {
-                firestore.collection("handover_items").document(item.id).set(item).await()
-            } else {
-                firestore.collection("handover_items").add(item).await()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error updating handover item: ${e.message}")
+            Log.e(TAG, "Error completing handover: ${e.message}")
         }
     }
 
     suspend fun getColleagues(): List<Pair<String, String>> {
         val uid = auth.currentUser?.uid ?: return emptyList()
         return try {
-            val connections = firestore.collection("connections")
+            val snapshot = firestore.collection("connections")
                 .whereArrayContains("members", uid)
                 .get()
                 .await()
-            
+
+            val partnerIds = snapshot.documents.mapNotNull { doc ->
+                val members = doc.get("members") as? List<*>
+                members?.filterIsInstance<String>()?.firstOrNull { it != uid }
+            }
+
+            if (partnerIds.isEmpty()) return emptyList()
+
             val colleagues = mutableListOf<Pair<String, String>>()
-            for (doc in connections) {
-                val members = doc.get("members") as? List<String>
-                val colleagueUid = members?.firstOrNull { it != uid }
-                if (colleagueUid != null) {
-                    val userDoc = firestore.collection("users").document(colleagueUid).get().await()
-                    val name = userDoc.getString("name") ?: "Nurse"
-                    colleagues.add(colleagueUid to name)
+            for (id in partnerIds) {
+                val doc = firestore.collection("users").document(id).get().await()
+                if (doc.exists()) {
+                    val name = doc.getString("name") ?: "Nurse"
+                    colleagues.add(id to name)
                 }
             }
-            colleagues
+            colleagues.sortedBy { it.second }
         } catch (e: Exception) {
+            Log.e(TAG, "Error fetching colleagues: ${e.message}")
             emptyList()
         }
     }

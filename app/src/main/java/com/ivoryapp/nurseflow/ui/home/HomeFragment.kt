@@ -29,8 +29,11 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.ivoryapp.nurseflow.NurseFlowApplication
 import com.ivoryapp.nurseflow.R
+import com.ivoryapp.nurseflow.data.repository.LanguageRepository
 import com.ivoryapp.nurseflow.databinding.FragmentHomeBinding
 import com.ivoryapp.nurseflow.ui.LoginActivity
+import com.ivoryapp.nurseflow.utils.LocaleManager
+import com.ivoryapp.nurseflow.utils.RemoteConfigManager
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -45,11 +48,9 @@ class HomeFragment : Fragment() {
     private var pendingRequestsCount = 0
     private var unreadNotificationsCount = 0
     
-    // Registrations for cleanup
     private var requestsListener: ListenerRegistration? = null
     private var notificationsListener: ListenerRegistration? = null
     private var connectionsListener: ListenerRegistration? = null
-    private var handoverListener: ListenerRegistration? = null
 
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModelFactory((requireActivity().application as NurseFlowApplication).repository)
@@ -67,6 +68,13 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        RemoteConfigManager.fetchAndActivate {
+            if (isAdded && _binding != null) {
+                applyTranslations()
+                setupUserHeader()
+            }
+        }
+
         setupUserHeader()
         setupColleagueRecyclerView()
         setupClickListeners()
@@ -74,63 +82,32 @@ class HomeFragment : Fragment() {
         displayUserInfo()
         listenForTotalNotifications()
         loadConnections()
-        listenForHandoverRequests()
     }
 
-    private fun listenForHandoverRequests() {
-        val uid = auth.currentUser?.uid ?: return
+    private fun applyTranslations() {
+        if (_binding == null) return
+        val context = requireContext()
         
-        handoverListener = firestore.collection("handover_requests")
-            .whereEqualTo("toUid", uid)
-            .whereEqualTo("status", "PENDING")
-            .addSnapshotListener { snapshot, _ ->
-                if (_binding == null) return@addSnapshotListener
-                
-                val handoverDoc = snapshot?.documents?.firstOrNull()
-                if (handoverDoc != null) {
-                    binding.cardHandoverNotification.visibility = View.VISIBLE
-                    val fromName = handoverDoc.getString("fromName") ?: "Rekan"
-                    val patientName = handoverDoc.getString("patientName") ?: "Pasien"
-                    binding.tvHandoverDesc.text = "$fromName ingin menyerahkan tanggung jawab pasien: $patientName"
-                    
-                    binding.btnAcceptHandover.setOnClickListener { 
-                        acceptHandover(handoverDoc.id, handoverDoc.getLong("patientId")?.toInt() ?: 0)
-                    }
-                    binding.btnRejectHandover.setOnClickListener {
-                        rejectHandover(handoverDoc.id)
-                    }
-                } else {
-                    binding.cardHandoverNotification.visibility = View.GONE
-                }
-            }
-    }
-
-    private fun acceptHandover(requestId: String, patientId: Int) {
-        val app = requireActivity().application as NurseFlowApplication
-        viewLifecycleOwner.lifecycleScope.launch {
-            setLoading(true)
-            try {
-                app.handoverRepository.acceptHandoverRequest(requestId, patientId)
-                Toast.makeText(requireContext(), "Pasien berhasil diterima", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Gagal menerima pasien", Toast.LENGTH_SHORT).show()
-            } finally {
-                setLoading(false)
-            }
-        }
-    }
-
-    private fun rejectHandover(requestId: String) {
-        val app = requireActivity().application as NurseFlowApplication
-        viewLifecycleOwner.lifecycleScope.launch {
-            app.handoverRepository.rejectHandoverRequest(requestId)
-        }
+        binding.tvSubtitle.text = LanguageRepository.get(context, "home_subtitle")
+        binding.tvStatusMain.text = LanguageRepository.get(context, "label_briefing_and_handover")
+        binding.tvLastUpdate.text = LanguageRepository.get(context, "label_start_handover_desc")
+        
+        binding.tvPatientsLabel.text = LanguageRepository.get(context, "tool_patients")
+        binding.tvIvCalcLabel.text = LanguageRepository.get(context, "tool_iv_calc")
+        binding.tvColleaguesLabelGrid.text = LanguageRepository.get(context, "tool_colleagues")
+        binding.tvVitalsLabel.text = LanguageRepository.get(context, "tool_vitals")
+        binding.tvAiNotesLabel.text = LanguageRepository.get(context, "tool_ai_notes")
+        
+        binding.tvColleaguesLabel.text = LanguageRepository.get(context, "label_my_team")
+        
+        binding.tvRequestTitle.text = LanguageRepository.get(context, "label_colleague_request")
+        binding.btnAcceptRequest.text = LanguageRepository.get(context, "btn_accept")
+        binding.btnRejectRequest.text = LanguageRepository.get(context, "btn_reject")
     }
 
     private fun listenForTotalNotifications() {
         val uid = auth.currentUser?.uid ?: return
 
-        // 1. Listen for connection requests
         requestsListener = firestore.collection("requests")
             .whereEqualTo("toUid", uid)
             .whereEqualTo("status", "pending")
@@ -139,18 +116,11 @@ class HomeFragment : Fragment() {
                 pendingRequestsCount = snapshot?.size() ?: 0
                 updateNotificationBadge()
                 
-                val requestDoc = snapshot?.documents?.firstOrNull()
-                if (requestDoc != null) {
-                    binding.cardRequest.visibility = View.VISIBLE
-                    binding.tvRequestDesc.text = "${requestDoc.getString("fromName")} ingin terhubung"
-                    binding.btnAcceptRequest.setOnClickListener { acceptConnectionRequest(requestDoc.id, requestDoc.getString("fromUid")!!) }
-                    binding.btnRejectRequest.setOnClickListener { rejectConnectionRequest(requestDoc.id) }
-                } else {
-                    binding.cardRequest.visibility = View.GONE
-                }
+                // NOTIFIKASI DI HOME DINONAKTIFKAN SESUAI REQUEST USER
+                // SEMUA NOTIFIKASI SUDAH ADA DI HALAMAN NOTIFIKASI (BELL ICON)
+                binding.cardRequest.visibility = View.GONE
             }
 
-        // 2. Listen for clinical reminders
         notificationsListener = firestore.collection("notifications")
             .whereEqualTo("userId", uid)
             .whereEqualTo("isRead", false)
@@ -211,10 +181,10 @@ class HomeFragment : Fragment() {
 
     private fun showColleaguePopupMenu(anchor: View, colleague: Colleague) {
         val popup = PopupMenu(requireContext(), anchor)
-        popup.menu.add(0, 1, 0, "Lihat Profil Rekan Kerja")
-        popup.menu.add(0, 2, 1, "Lihat Daftar Pasien")
+        popup.menu.add(0, 1, 0, LanguageRepository.get(requireContext(), "menu_view_profile"))
+        popup.menu.add(0, 2, 1, LanguageRepository.get(requireContext(), "menu_view_patients"))
         
-        val deleteItem = popup.menu.add(0, 3, 2, "Delete Rekan Kerja")
+        val deleteItem = popup.menu.add(0, 3, 2, LanguageRepository.get(requireContext(), "menu_delete_colleague"))
         val spannable = SpannableString(deleteItem.title)
         spannable.setSpan(ForegroundColorSpan(Color.RED), 0, spannable.length, 0)
         deleteItem.title = spannable
@@ -242,10 +212,10 @@ class HomeFragment : Fragment() {
 
     private fun showDeleteConfirmation(colleague: Colleague) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Hapus Rekan Kerja")
-            .setMessage("Apakah Anda yakin ingin menghapus ${colleague.name}?")
-            .setPositiveButton("Hapus") { _, _ -> deleteColleague(colleague) }
-            .setNegativeButton("Batal", null)
+            .setTitle(LanguageRepository.get(requireContext(), "dialog_delete_colleague_title"))
+            .setMessage(String.format(LanguageRepository.get(requireContext(), "dialog_delete_colleague_message"), colleague.name))
+            .setPositiveButton(LanguageRepository.get(requireContext(), "btn_delete")) { _, _ -> deleteColleague(colleague) }
+            .setNegativeButton(LanguageRepository.get(requireContext(), "btn_cancel"), null)
             .show()
     }
 
@@ -332,13 +302,14 @@ class HomeFragment : Fragment() {
     private fun copyToClipboard(text: String) {
         val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("Work ID", text))
-        Toast.makeText(requireContext(), "Work ID copied", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), LanguageRepository.get(requireContext(), "toast_work_id_copied"), Toast.LENGTH_SHORT).show()
     }
 
     private fun setupUserHeader() {
         auth.currentUser?.let {
             if (_binding != null) {
-                binding.tvGreeting.text = "Hello, ${it.displayName?.split(" ")?.firstOrNull() ?: "Nurse"}"
+                val greetingPrefix = LanguageRepository.get(requireContext(), "greeting_hello_prefix")
+                binding.tvGreeting.text = "$greetingPrefix, ${it.displayName?.split(" ")?.firstOrNull() ?: "Nurse"}"
                 Glide.with(this).load(it.photoUrl).placeholder(android.R.drawable.ic_menu_gallery).circleCrop().into(binding.ivProfile)
             }
         }
@@ -355,6 +326,22 @@ class HomeFragment : Fragment() {
         binding.btnColleagues.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_colleaguesFragment) }
         binding.tvColleaguesLabel.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_colleaguesFragment) }
         binding.btnGoToHandover.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_handoverFragment) }
+        binding.btnLanguage.setOnClickListener { showLanguageSelector() }
+    }
+
+    private fun showLanguageSelector() {
+        val languages = arrayOf("English", "Bahasa Indonesia")
+        val languageCodes = arrayOf("en", "in")
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle(LanguageRepository.get(requireContext(), "dialog_select_language_title"))
+            .setItems(languages) { _, which ->
+                val selectedLang = languageCodes[which]
+                LocaleManager.setNewLocale(requireContext(), selectedLang)
+                requireActivity().finish()
+                requireActivity().startActivity(requireActivity().intent)
+            }
+            .show()
     }
 
     private fun logout() {
@@ -368,11 +355,9 @@ class HomeFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        // Stop all listeners to prevent crashes
         requestsListener?.remove()
         notificationsListener?.remove()
         connectionsListener?.remove()
-        handoverListener?.remove()
         super.onDestroyView()
         _binding = null
     }

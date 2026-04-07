@@ -4,70 +4,86 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.ivoryapp.nurseflow.data.model.PatientHandover
-import com.ivoryapp.nurseflow.data.model.ShiftSession
+import com.ivoryapp.nurseflow.data.model.Handover
+import com.ivoryapp.nurseflow.data.model.HandoverTask
 import com.ivoryapp.nurseflow.data.repository.HandoverRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class HandoverViewModel(private val repository: HandoverRepository) : ViewModel() {
-
-    private val _currentSession = MutableLiveData<ShiftSession?>()
-    val currentSession: LiveData<ShiftSession?> = _currentSession
-
-    private val _handoverItems = MutableLiveData<List<PatientHandover>>()
-    val handoverItems: LiveData<List<PatientHandover>> = _handoverItems
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    init {
-        checkActiveSession()
+    // Daftar handover aktif (yang dikirim atau diterima)
+    val activeHandovers: LiveData<List<Handover>> = repository.getActiveHandovers().asLiveData()
+
+    private val _selectedHandoverId = MutableStateFlow<String?>(null)
+    
+    // Checklist tugas untuk handover yang sedang dipilih
+    val currentTasks: LiveData<List<HandoverTask>> = _selectedHandoverId.flatMapLatest { id ->
+        if (id == null) flowOf(emptyList())
+        else repository.getHandoverTasks(id)
+    }.asLiveData()
+
+    fun getTasksForHandover(handoverId: String): LiveData<List<HandoverTask>> {
+        return repository.getHandoverTasks(handoverId).asLiveData()
     }
 
-    private fun checkActiveSession() {
+    fun acceptHandover(handoverId: String, patientId: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            val session = repository.getActiveSession()
-            _currentSession.value = session
-            if (session != null) {
-                loadHandoverItems(session.id)
+            try {
+                repository.acceptHandoverRequest(handoverId, patientId)
+            } catch (e: Exception) {
+                // Error handling
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 
-    fun startHandover(shiftType: String, fromColleagueUid: String? = null) {
+    fun rejectHandover(handoverId: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            repository.startNewSession(shiftType, fromColleagueUid)
-            checkActiveSession()
-        }
-    }
-
-    private fun loadHandoverItems(sessionId: String) {
-        viewModelScope.launch {
-            val items = repository.getHandoverItems(sessionId)
-            _handoverItems.value = items
-        }
-    }
-
-    fun updateHandoverItem(item: PatientHandover) {
-        viewModelScope.launch {
-            repository.updateHandoverItem(item)
-            _currentSession.value?.id?.let { loadHandoverItems(it) }
-        }
-    }
-
-    fun completeHandover() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _currentSession.value?.id?.let { 
-                repository.completeSession(it)
-                _currentSession.value = null
-                _handoverItems.value = emptyList()
+            try {
+                repository.rejectHandoverRequest(handoverId)
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
+        }
+    }
+
+    fun toggleTask(taskId: String, isCompleted: Boolean, handoverId: String) {
+        viewModelScope.launch {
+            repository.toggleTask(taskId, isCompleted, handoverId)
+        }
+    }
+
+    fun sendTaskNotification(task: HandoverTask, toUid: String) {
+        viewModelScope.launch {
+            // Logika pengiriman notifikasi manual ke pembuat task (Perawat A)
+            repository.toggleTask(task.id, task.isCompleted, task.handoverId)
+        }
+    }
+
+    fun completeHandover(handoverId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                repository.completeHandover(handoverId)
+                if (_selectedHandoverId.value == handoverId) {
+                    _selectedHandoverId.value = null
+                }
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 }
