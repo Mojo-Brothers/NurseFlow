@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">NurseFlow</string>
+
+    <!-- Home Screen -->
+    <string name="greeting_nurse">Good Morning, Nurse</string>
+    <string name="shift_checklist">Shift Checklist</string>
+    <string name="core_mvp_tools">Core MVP Tools</string>
+    <string name="tool_vitals">Vitals</string>
+    <string name="tool_iv_calc">IV Calc</string>
+    <string name="tool_ai_notes">AI Notes</string>
+    <string name="tool_patients">Patients</string>
+    <string name="action_general_notes">General Notes</string>
+    <string name="action_export_pdf">Export PDF</string>
+
+    <!-- IV Calculator -->
+    <string name="iv_calculator_title">IV Drip Rate Calculator</string>
+    <string name="hint_volume">Volume (ml)</string>
+    <string name="hint_time">Time (hours)</string>
+    <string name="hint_drop_factor">Drop Factor (gtt/ml)</string>
+    <string name="btn_calculate">Calculate</string>
+    <string name="label_flow_rate">Flow Rate</string>
+    <string name="result_drip_rate">%1$d gtt/min</string>
+
+    <!-- Tasks -->
+    <string name="add_task_content_description">Add Task</string>
+
+    <!-- Vital Signs -->
+    <string name="vital_signs_title">Vital Signs</string>
+    <string name="add_vital_sign">Add Vital Sign</string>
+    <string name="btn_save">Save</string>
+    <string name="hint_diastolic">Diastolic (mmHg)</string>
+    <string name="hint_pulse">Pulse (bpm)</string>
+    <string name="hint_resp">Resp (breaths/min)</string>
+    <string name="hint_spo2">SpO2 (%)</string>
+    <string name="hint_systolic">Systolic (mmHg)</string>
+    <string name="hint_temp">Temp (°C)</string>
+    <string name="label_bp">Blood Pressure</string>
+    <string name="label_pulse">Pulse</string>
+    <string name="label_resp">Respiration</string>
+    <string name="label_temp">Temperature</string>
+</resources>

@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">NurseFlow</string>
+
+    <!-- Home Screen -->
+    <string name="greeting_nurse">Selamat Pagi, Perawat</string>
+    <string name="shift_checklist">Checklist Shift</string>
+    <string name="core_mvp_tools">Alat Utama MVP</string>
+    <string name="tool_vitals">Vital Sign</string>
+    <string name="tool_iv_calc">Kalkulator IV</string>
+    <string name="tool_ai_notes">Catatan AI</string>
+    <string name="tool_patients">Pasien</string>
+    <string name="action_general_notes">Catatan Umum</string>
+    <string name="action_export_pdf">Ekspor PDF</string>
+
+    <!-- IV Calculator -->
+    <string name="iv_calculator_title">Kalkulator Tetesan Infus</string>
+    <string name="hint_volume">Volume (ml)</string>
+    <string name="hint_time">Waktu (jam)</string>
+    <string name="hint_drop_factor">Faktor Tetes (gtt/ml)</string>
+    <string name="btn_calculate">Hitung</string>
+    <string name="label_flow_rate">Laju Aliran</string>
+    <string name="result_drip_rate">%1$d gtt/menit</string>
+
+    <!-- Vital Signs -->
+    <string name="vital_signs_title">Catatan Vital Sign</string>
+    <string name="add_vital_sign">Tambah Vital Sign</string>
+    <string name="hint_systolic">Sistolik (mmHg)</string>
+    <string name="hint_diastolic">Diastolik (mmHg)</string>
+    <string name="hint_pulse">Nadi (bpm)</string>
+    <string name="hint_temp">Suhu (°C)</string>
+    <string name="hint_resp">Pernapasan (bpm)</string>
+    <string name="hint_spo2">SpO2 (%)</string>
+    <string name="btn_save">Simpan</string>
+    <string name="label_bp">TD: %1$d/%2$d</string>
+    <string name="label_pulse">N: %1$d</string>
+    <string name="label_temp">S: %1$.1f</string>
+    <string name="label_resp">R: %1$d</string>
+
+    <!-- Tasks -->
+    <string name="add_task_content_description">Tambah Tugas</string>
+</resources>

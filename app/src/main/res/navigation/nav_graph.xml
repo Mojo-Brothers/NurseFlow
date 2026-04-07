@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.ivoryapp.nurseflow.ui.home.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_ivCalculatorFragment"
+            app:destination="@id/ivCalculatorFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_vitalSignFragment"
+            app:destination="@id/vitalSignFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ivCalculatorFragment"
+        android:name="com.ivoryapp.nurseflow.ui.task.IVCalculatorFragment"
+        android:label="IV Calculator"
+        tools:layout="@layout/fragment_iv_calculator" />
+
+    <fragment
+        android:id="@+id/vitalSignFragment"
+        android:name="com.ivoryapp.nurseflow.ui.patient.VitalSignFragment"
+        android:label="Vital Signs"
+        tools:layout="@layout/fragment_vital_signs" />
+</navigation>
