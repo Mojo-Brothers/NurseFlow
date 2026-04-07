@@ -1,55 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand Colors - Professional Indigo -->
-    <color name="primary_purple">#6366F1</color>
+    <!-- Primary Branding -->
+    <color name="primary">#6366F1</color>
+    <color name="primary_light">#EEF2FF</color>
+    <color name="secondary">#06B6D4</color>
+    <color name="primary_purple">#8B5CF6</color>
     <color name="primary_blue">#3B82F6</color>
     <color name="accent_cyan">#06B6D4</color>
-
-    <!-- Cozy Light Palette -->
-    <color name="bg_light">#FBFBFB</color>         <!-- Soft White -->
-    <color name="card_light">#FFFFFF</color>
-    <color name="card_light_stroke">#E5E7EB</color> <!-- Thin subtle grey -->
-    <color name="text_primary_light">#1F2937</color> <!-- Soft Black -->
-    <color name="text_secondary_light">#4B5563</color>
-    <color name="text_muted_light">#9CA3AF</color>
-
-    <!-- Cozy Dark Palette -->
-    <color name="bg_dark">#111827</color>          <!-- Deep Navy -->
-    <color name="card_dark">#1F2937</color>        <!-- Dark Grey -->
-    <color name="card_dark_stroke">#374151</color>
-    <color name="text_primary_dark">#F9FAFB</color>
-    <color name="text_secondary_dark">#9CA3AF</color>
-    <color name="text_muted_dark">#6B7280</color>
-
-    <!-- Semantic Mapping -->
-    <color name="surface_background">@color/bg_light</color>
-    <color name="surface_card">@color/card_light</color>
-    <color name="surface_stroke">@color/card_light_stroke</color>
-    <color name="text_primary">@color/text_primary_light</color>
-    <color name="text_secondary">@color/text_secondary_light</color>
-    <color name="text_muted">@color/text_muted_light</color>
-
-    <!-- Reuse these for compatibility or simplify -->
-    <color name="surface_glass">@color/surface_card</color>
-    <color name="surface_glass_stroke">@color/surface_stroke</color>
-
-    <!-- Status Colors -->
-    <color name="status_stable">#10B981</color>
-    <color name="status_done">#10B981</color>
-    <color name="status_warning">#F59E0B</color>
-    <color name="status_urgent">#EF4444</color>
-    <color name="status_pending">#6B7280</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Status & Task Colors -->
+    <color name="status_pending">#F59E0B</color>
+    <color name="status_done">#10B981</color>
+    <color name="status_urgent">#EF4444</color>
+    <color name="status_normal">#10B981</color>
+    <color name="status_warning">#F59E0B</color>
+    <color name="status_critical">#EF4444</color>
 
     <!-- Risk Badge Colors -->
     <color name="risk_low">#10B981</color>
+    <color name="risk_low_bg">#DCFCE7</color>
     <color name="risk_medium">#F59E0B</color>
+    <color name="risk_medium_bg">#FEF3C7</color>
     <color name="risk_high">#EF4444</color>
-    <color name="risk_low_bg">#1A10B981</color>
-    <color name="risk_medium_bg">#1AF59E0B</color>
-    <color name="risk_high_bg">#1AEF4444</color>
+    <color name="risk_high_bg">#FEE2E2</color>
 
-    <!-- Transparent Overlays -->
-    <color name="overlay_primary_light">#0D6366F1</color>
-    <color name="overlay_primary_dark">#1A6366F1</color>
+    <!-- Overlays -->
+    <color name="overlay_primary_light">#1A6366F1</color>
+    <color name="glass_stroke">#33FFFFFF</color>
+    <color name="shadow_color">#1A000000</color>
+    <color name="surface_glass">#CCFFFFFF</color>
+    <color name="surface_glass_stroke">#33FFFFFF</color>
+
+    <!-- Background System -->
+    <color name="background_app">#F8FAFC</color>
+    <color name="surface_background">#F8FAFC</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="surface_card_glass">#CCFFFFFF</color>
+    <color name="surface_stroke">#E2E8F0</color>
+
+    <!-- Text Hierarchy -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_hint">#94A3B8</color>
+    <color name="text_muted">#94A3B8</color>
+
+    <!-- Dark Mode Palette (Internal references) -->
+    <color name="bg_dark">#0F172A</color>
+    <color name="card_dark">#1E293B</color>
+    <color name="card_dark_stroke">#334155</color>
+    <color name="text_primary_dark">#F8FAFC</color>
+    <color name="text_secondary_dark">#CBD5E1</color>
+    <color name="text_muted_dark">#94A3B8</color>
 </resources>
