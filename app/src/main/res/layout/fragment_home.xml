@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/surface_background"
+    android:fitsSystemWindows="true"
     tools:context=".ui.home.HomeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -12,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/surface_background"
+        android:fitsSystemWindows="true"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -28,7 +30,7 @@
                     android:id="@+id/iv_profile"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="8dp"
                     android:scaleType="centerCrop"
                     android:src="@android:drawable/ic_menu_gallery"
                     app:layout_constraintStart_toStartOf="parent"

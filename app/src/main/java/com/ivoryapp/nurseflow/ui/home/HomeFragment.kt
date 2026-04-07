@@ -116,8 +116,6 @@ class HomeFragment : Fragment() {
                 pendingRequestsCount = snapshot?.size() ?: 0
                 updateNotificationBadge()
                 
-                // NOTIFIKASI DI HOME DINONAKTIFKAN SESUAI REQUEST USER
-                // SEMUA NOTIFIKASI SUDAH ADA DI HALAMAN NOTIFIKASI (BELL ICON)
                 binding.cardRequest.visibility = View.GONE
             }
 
@@ -316,6 +314,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        binding.ivProfile.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_editProfileFragment) }
         binding.btnNotifications.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_notificationsFragment) }
         binding.btnHeaderColleagues.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_colleaguesFragment) }
         binding.btnIvCalc.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_ivCalculatorFragment) }

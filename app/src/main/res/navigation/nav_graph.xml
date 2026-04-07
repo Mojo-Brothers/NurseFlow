@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_homeFragment_to_handoverFragment"
             app:destination="@id/handoverFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
     </fragment>
 
     <fragment
@@ -162,4 +165,10 @@
             android:id="@+id/action_handoverFragment_to_colleaguesFragment"
             app:destination="@id/colleaguesFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.ivoryapp.nurseflow.ui.home.EditProfileFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile" />
 </navigation>
