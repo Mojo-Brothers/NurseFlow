@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">NurseFlow</string>
 
+    <!-- Login -->
+    <string name="login_welcome">Welcome Back</string>
+    <string name="login_subtitle">Login to continue</string>
+    <string name="login_continue_google">Continue with Google</string>
+
     <!-- Home Screen -->
     <string name="greeting_nurse">Good Morning, Nurse</string>
     <string name="shift_checklist">Shift Checklist</string>

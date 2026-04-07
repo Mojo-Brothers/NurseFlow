@@ -10,7 +10,7 @@ interface VitalSignDao {
     fun getVitalSignsForPatient(patientId: Int): Flow<List<VitalSign>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVitalSign(vitalSign: VitalSign)
+    suspend fun insertVitalSign(vitalSign: VitalSign): Long
 
     @Update
     suspend fun updateVitalSign(vitalSign: VitalSign)

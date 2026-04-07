@@ -1,6 +1,7 @@
 package com.ivoryapp.nurseflow.ui.patient
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
@@ -12,10 +13,27 @@ import kotlinx.coroutines.launch
 class PatientViewModel(private val repository: PatientRepository) : ViewModel() {
 
     val allPatients: LiveData<List<Patient>> = repository.allPatients.asLiveData()
+    
+    private val _colleaguePatients = MutableLiveData<List<Patient>>()
+    val colleaguePatients: LiveData<List<Patient>> = _colleaguePatients
 
-    fun addPatient(name: String, age: Int, dob: String, roomNumber: String, condition: String) {
+    fun addPatient(name: String, age: Int, dob: String, room: String, condition: String) {
         viewModelScope.launch {
-            repository.insert(Patient(name = name, age = age, dateOfBirth = dob, roomNumber = roomNumber, conditionBrief = condition))
+            val newPatient = Patient(
+                name = name,
+                age = age,
+                dateOfBirth = dob,
+                roomNumber = room,
+                conditionBrief = condition
+            )
+            repository.insert(newPatient)
+        }
+    }
+
+    fun loadColleaguePatients(colleagueUid: String) {
+        viewModelScope.launch {
+            val patients = repository.getColleaguePatients(colleagueUid)
+            _colleaguePatients.value = patients
         }
     }
 }

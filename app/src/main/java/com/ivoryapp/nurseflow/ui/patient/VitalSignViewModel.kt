@@ -1,6 +1,11 @@
 package com.ivoryapp.nurseflow.ui.patient
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.ivoryapp.nurseflow.data.model.Patient
 import com.ivoryapp.nurseflow.data.model.VitalSign
 import com.ivoryapp.nurseflow.data.repository.PatientRepository
@@ -12,34 +17,34 @@ class VitalSignViewModel(
     private val patientRepository: PatientRepository
 ) : ViewModel() {
 
-    fun getPatient(patientId: Int): LiveData<Patient?> {
-        return patientRepository.getPatientById(patientId).asLiveData()
-    }
+    fun getPatient(id: Int): LiveData<Patient?> = patientRepository.getPatientById(id).asLiveData()
 
-    fun getVitalSigns(patientId: Int): LiveData<List<VitalSign>> {
-        return vitalSignRepository.getVitalSignsForPatient(patientId).asLiveData()
-    }
+    fun getVitalSigns(patientId: Int): LiveData<List<VitalSign>> =
+        vitalSignRepository.getVitalSignsForPatient(patientId).asLiveData()
+
+    private val _colleagueVitalSigns = MutableLiveData<List<VitalSign>>()
+    val colleagueVitalSigns: LiveData<List<VitalSign>> = _colleagueVitalSigns
 
     fun addVitalSign(
         patientId: Int,
         systolic: Int,
         diastolic: Int,
         pulse: Int,
-        temperature: Double,
-        respiration: Int,
-        spo2: Int?
+        temp: Double,
+        resp: Int,
+        spo2: Int? = null
     ) {
         viewModelScope.launch {
-            val newVital = VitalSign(
+            val vital = VitalSign(
                 patientId = patientId,
                 systolic = systolic,
                 diastolic = diastolic,
                 pulse = pulse,
-                temperature = temperature,
-                respiration = respiration,
+                temperature = temp,
+                respiration = resp,
                 spo2 = spo2
             )
-            vitalSignRepository.insert(newVital)
+            vitalSignRepository.insert(vital)
         }
     }
 
@@ -52,6 +57,13 @@ class VitalSignViewModel(
     fun deleteVitalSign(vitalSign: VitalSign) {
         viewModelScope.launch {
             vitalSignRepository.delete(vitalSign)
+        }
+    }
+
+    fun loadColleagueVitalSigns(patientId: Int) {
+        viewModelScope.launch {
+            val vitals = vitalSignRepository.getColleagueVitalSigns(patientId)
+            _colleagueVitalSigns.value = vitals
         }
     }
 }

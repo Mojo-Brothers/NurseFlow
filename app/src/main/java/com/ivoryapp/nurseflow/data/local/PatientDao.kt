@@ -13,7 +13,7 @@ interface PatientDao {
     fun getPatientById(id: Int): Flow<Patient?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPatient(patient: Patient)
+    suspend fun insertPatient(patient: Patient): Long
 
     @Delete
     suspend fun deletePatient(patient: Patient)

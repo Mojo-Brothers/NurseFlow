@@ -15,5 +15,6 @@ data class VitalSign(
     val spo2: Int? = null,
     val painScale: Int? = null,
     val consciousness: String = "Alert", // Alert, Voice, Pain, Unresponsive (AVPU)
+    val createdBy: String? = null, // UID Perawat yang menginput
     val timestamp: Long = System.currentTimeMillis()
 )

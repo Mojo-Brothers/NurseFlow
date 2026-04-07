@@ -9,17 +9,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.snackbar.Snackbar
 import com.ivoryapp.nurseflow.NurseFlowApplication
 import com.ivoryapp.nurseflow.R
 import com.ivoryapp.nurseflow.data.model.VitalSign
 import com.ivoryapp.nurseflow.databinding.FragmentVitalSignsBinding
-import com.google.android.material.snackbar.Snackbar
+import com.ivoryapp.nurseflow.util.VitalSignAnalyzer
+import java.text.SimpleDateFormat
+import java.util.*
 
 class VitalSignFragment : Fragment() {
 
@@ -32,6 +42,8 @@ class VitalSignFragment : Fragment() {
     }
 
     private var patientId: Int = -1
+    private var currentPatientName: String = ""
+    private var isColleagueView: Boolean = false
     private lateinit var adapter: VitalSignAdapter
 
     override fun onCreateView(
@@ -47,29 +59,132 @@ class VitalSignFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         patientId = arguments?.getInt("patientId") ?: -1
+        isColleagueView = arguments?.getBoolean("isColleagueView") ?: false
 
         adapter = VitalSignAdapter()
         binding.rvVitalSigns.layoutManager = LinearLayoutManager(requireContext())
         binding.rvVitalSigns.adapter = adapter
 
+        setupChart()
+
         if (patientId != -1) {
             viewModel.getPatient(patientId).observe(viewLifecycleOwner) { patient ->
                 patient?.let {
+                    currentPatientName = it.name
                     binding.tvPatientNameDetail.text = it.name
                     binding.tvPatientIdDetail.text = "DOB: ${it.dateOfBirth} | Age: ${it.age} | Room: ${it.roomNumber}"
                 }
             }
 
-            viewModel.getVitalSigns(patientId).observe(viewLifecycleOwner) { vitals ->
-                adapter.submitList(vitals)
+            if (isColleagueView) {
+                binding.fabActions.visibility = View.GONE
+                viewModel.loadColleagueVitalSigns(patientId)
+                viewModel.colleagueVitalSigns.observe(viewLifecycleOwner) { vitals ->
+                    adapter.submitList(vitals)
+                    updateChart(vitals)
+                }
+            } else {
+                viewModel.getVitalSigns(patientId).observe(viewLifecycleOwner) { vitals ->
+                    adapter.submitList(vitals)
+                    updateChart(vitals)
+                }
+                setupSwipeActions()
             }
         }
 
-        binding.fabAddVital.setOnClickListener {
-            showAddVitalSignDialog()
+        binding.fabActions.setOnClickListener { view ->
+            showActionMenu(view)
+        }
+        
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
+    }
+
+    private fun showActionMenu(view: View) {
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(R.menu.menu_patient_actions, popup.menu)
+        
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_add_vital -> {
+                    showAddVitalSignDialog()
+                    true
+                }
+                R.id.action_remind -> {
+                    val bundle = Bundle().apply {
+                        putInt("patientId", patientId)
+                        putString("patientName", currentPatientName)
+                    }
+                    findNavController().navigate(R.id.action_vitalSignFragment_to_colleagueSelectionFragment, bundle)
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+    private fun setupChart() {
+        binding.lineChart.apply {
+            description.isEnabled = false
+            setTouchEnabled(true)
+            isDragEnabled = true
+            setScaleEnabled(true)
+            setPinchZoom(true)
+            setDrawGridBackground(false)
+            
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                setDrawGridLines(false)
+                textColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+                valueFormatter = object : ValueFormatter() {
+                    private val mFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                    override fun getFormattedValue(value: Float): String {
+                        return mFormat.format(Date(value.toLong()))
+                    }
+                }
+            }
+
+            axisLeft.apply {
+                setDrawGridLines(true)
+                gridColor = ContextCompat.getColor(requireContext(), R.color.surface_stroke)
+                textColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+                axisMinimum = 0f
+                axisMaximum = 15f
+            }
+
+            axisRight.isEnabled = false
+            legend.isEnabled = false
+        }
+    }
+
+    private fun updateChart(vitals: List<VitalSign>) {
+        if (vitals.isEmpty()) {
+            binding.cardChart.visibility = View.GONE
+            return
+        }
+        binding.cardChart.visibility = View.VISIBLE
+
+        val sortedVitals = vitals.sortedBy { it.timestamp }
+        val entries = sortedVitals.map { vital ->
+            Entry(vital.timestamp.toFloat(), VitalSignAnalyzer.calculateNEWS2(vital).toFloat())
         }
 
-        setupSwipeActions()
+        val dataSet = LineDataSet(entries, "NEWS2 Score").apply {
+            color = ContextCompat.getColor(requireContext(), R.color.primary_purple)
+            setCircleColor(ContextCompat.getColor(requireContext(), R.color.primary_purple))
+            lineWidth = 3f
+            circleRadius = 5f
+            setDrawCircleHole(true)
+            valueTextSize = 0f
+            setDrawFilled(true)
+            fillDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.bg_gradient_primary)
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+        }
+
+        binding.lineChart.data = LineData(dataSet)
+        binding.lineChart.invalidate()
     }
 
     private fun setupSwipeActions() {

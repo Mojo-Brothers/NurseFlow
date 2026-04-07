@@ -24,26 +24,96 @@
                 android:layout_height="wrap_content"
                 android:padding="20dp">
 
-                <TextView
-                    android:id="@+id/tv_greeting"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_profile"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="32dp"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="@color/surface_stroke"
+                    app:strokeWidth="2dp" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_profile"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/iv_profile">
+
+                    <FrameLayout
+                        android:id="@+id/btn_notifications"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:id="@+id/iv_bell"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/ic_notifications"
+                            app:tint="@color/primary_purple" />
+
+                        <TextView
+                            android:id="@+id/tv_notification_badge"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="top|end"
+                            android:background="@drawable/bg_notification_dot"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:text="0"
+                            android:visibility="gone" />
+                    </FrameLayout>
+
+                    <ImageButton
+                        android:id="@+id/btn_header_colleagues"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        app:tint="@color/primary_purple" />
+
+                    <ImageButton
+                        android:id="@+id/btn_logout"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_lock_power_off"
+                        app:tint="@color/status_urgent" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_greeting"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif-black"
                     android:text="@string/greeting_nurse"
                     android:textColor="@color/text_primary"
                     android:textSize="32sp"
-                    android:fontFamily="sans-serif-black"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/iv_profile" />
 
                 <TextView
                     android:id="@+id/tv_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
                     android:text="Ready for your shift today?"
                     android:textColor="@color/text_secondary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tv_greeting" />
 
@@ -65,15 +135,197 @@
             android:paddingHorizontal="12dp"
             android:paddingBottom="140dp">
 
-            <!-- Glassy Intelligence Status Card -->
+            <!-- Work ID Card -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_status"
+                android:id="@+id/card_team_info"
                 style="@style/GlassCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="4dp"
                 android:layout_marginTop="8dp"
+                android:visibility="gone"
                 app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_label_team_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Your Work ID"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_display_team_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:text="LOADING..."
+                        android:textColor="@color/primary_purple"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_label_team_id" />
+
+                    <ImageButton
+                        android:id="@+id/btn_copy_team_id"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_copy"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/primary_purple" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Incoming Connection Request Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_request"
+                style="@style/GlassCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#2D2A55"
+                app:layout_constraintTop_toBottomOf="@id/card_team_info">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_request_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:text="🔔 Permintaan Rekan"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvRequestDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Seseorang ingin terhubung"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnAcceptRequest"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:text="Terima"
+                            android:textColor="@color/white"
+                            app:backgroundTint="#4CAF50" />
+
+                        <Button
+                            android:id="@+id/btnRejectRequest"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Tolak"
+                            android:textColor="@color/white"
+                            app:backgroundTint="#F44336" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Handover Notification Card (B's Side) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_handover_notification"
+                style="@style/GlassCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#1A237E"
+                app:layout_constraintTop_toBottomOf="@id/card_request">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:text="📦 Handover Pasien Masuk"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tv_handover_desc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Perawat A ingin menyerahkan Pasien X"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btn_accept_handover"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:text="Terima"
+                            android:textColor="@color/white"
+                            app:backgroundTint="#2E7D32" />
+
+                        <Button
+                            android:id="@+id/btn_reject_handover"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Tolak"
+                            android:textColor="@color/white"
+                            app:backgroundTint="#C62828" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Glassy Handover/Briefing Status Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_go_to_handover"
+                style="@style/GlassCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/card_handover_notification">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -84,18 +336,19 @@
                         android:id="@+id/tv_status_main"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="⚠️ 3 patients pending check"
+                        android:fontFamily="sans-serif-black"
+                        android:text="🔄 Briefing &amp; Operan Shift"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
-                        android:fontFamily="sans-serif-black"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
+                        android:id="@+id/tv_last_update"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Last updated: 5 mins ago"
+                        android:text="Mulai operan dan lihat ringkasan klinis"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -104,8 +357,8 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@android:drawable/ic_media_play"
                         android:rotation="-90"
+                        android:src="@android:drawable/ic_media_play"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -114,13 +367,13 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Quick Action Grid with Glass Style -->
+            <!-- Quick Action Grid -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_grid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@id/card_status">
+                app:layout_constraintTop_toBottomOf="@id/btn_go_to_handover">
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btn_patients"
@@ -144,6 +397,7 @@
                             android:layout_width="56dp"
                             android:layout_height="56dp"
                             android:background="@drawable/bg_icon_container">
+
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
@@ -156,10 +410,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
+                            android:fontFamily="sans-serif-black"
                             android:text="@string/tool_patients"
                             android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -185,6 +439,7 @@
                             android:layout_width="56dp"
                             android:layout_height="56dp"
                             android:background="@drawable/bg_icon_container">
+
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
@@ -197,15 +452,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
+                            android:fontFamily="sans-serif-black"
                             android:text="@string/tool_iv_calc"
                             android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btn_ai_notes"
+                    android:id="@+id/btn_colleagues"
                     style="@style/GlassCard"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -226,11 +481,12 @@
                             android:layout_width="56dp"
                             android:layout_height="56dp"
                             android:background="@drawable/bg_icon_container">
+
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
-                                android:src="@android:drawable/ic_menu_info_details"
+                                android:src="@android:drawable/ic_menu_myplaces"
                                 app:tint="@color/accent_cyan" />
                         </FrameLayout>
 
@@ -238,10 +494,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:text="@string/tool_ai_notes"
+                            android:fontFamily="sans-serif-black"
+                            android:text="Rekan Kerja"
                             android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -254,7 +510,7 @@
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_weight="1"
-                    app:layout_constraintStart_toEndOf="@id/btn_ai_notes"
+                    app:layout_constraintStart_toEndOf="@id/btn_colleagues"
                     app:layout_constraintTop_toBottomOf="@id/btn_iv_calc">
 
                     <LinearLayout
@@ -267,6 +523,7 @@
                             android:layout_width="56dp"
                             android:layout_height="56dp"
                             android:background="@drawable/bg_icon_container">
+
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
@@ -279,54 +536,102 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
+                            android:fontFamily="sans-serif-black"
                             android:text="@string/tool_vitals"
                             android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_ai_notes"
+                    style="@style/GlassCard"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_margin="6dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toStartOf="@+id/btn_dummy"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btn_colleagues">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_icon_container">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@android:drawable/ic_menu_info_details"
+                                app:tint="@color/primary_blue" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="sans-serif-black"
+                            android:text="@string/tool_ai_notes"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <View
+                    android:id="@+id/btn_dummy"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_margin="6dp"
+                    android:visibility="invisible"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toEndOf="@id/btn_ai_notes"
+                    app:layout_constraintTop_toBottomOf="@id/btn_vitals" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <!-- Active Colleagues Horizontal List -->
             <TextView
-                android:id="@+id/tv_task_label"
+                android:id="@+id/tv_colleagues_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
                 android:layout_marginStart="6dp"
-                android:text="@string/shift_checklist"
-                android:textColor="@color/text_primary"
-                android:textSize="20sp"
+                android:layout_marginTop="24dp"
                 android:fontFamily="sans-serif-black"
+                android:text="Tim Anda"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cl_grid" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_tasks"
+                android:id="@+id/rv_colleagues"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:nestedScrollingEnabled="false"
-                android:overScrollMode="never"
-                app:layout_constraintTop_toBottomOf="@id/tv_task_label"
-                tools:listitem="@layout/item_task" />
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@id/tv_colleagues_label"
+                tools:listitem="@layout/item_colleague" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fab_add_task"
+    <!-- Global ProgressBar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="90dp"
-        android:backgroundTint="@color/primary_purple"
-        android:text="New Entry"
-        android:textColor="@color/white"
-        app:icon="@android:drawable/ic_input_add"
-        app:iconTint="@color/white"
-        app:elevation="8dp"
-        android:fontFamily="sans-serif-black"
-        android:textAllCaps="false"/>
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

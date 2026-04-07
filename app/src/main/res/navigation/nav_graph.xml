@@ -19,6 +19,31 @@
         <action
             android:id="@+id/action_homeFragment_to_patientListFragment"
             app:destination="@id/patientListFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_notificationsFragment"
+            app:destination="@id/notificationsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_colleaguesFragment"
+            app:destination="@id/colleaguesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_aiNotesFragment"
+            app:destination="@id/aiNotesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_handoverFragment"
+            app:destination="@id/handoverFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.ivoryapp.nurseflow.ui.notification.NotificationsFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifications">
+        <action
+            android:id="@+id/action_notificationsFragment_to_vitalSignFragment"
+            app:destination="@id/vitalSignFragment" />
+        <action
+            android:id="@+id/action_notificationsFragment_to_aiNotesFragment"
+            app:destination="@id/aiNotesFragment" />
     </fragment>
 
     <fragment
@@ -35,6 +60,21 @@
         <argument
             android:name="patientId"
             app:argType="integer" />
+        <argument
+            android:name="patientName"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="isColleagueView"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_vitalSignFragment_to_aiNotesFragment"
+            app:destination="@id/aiNotesFragment" />
+        <action
+            android:id="@+id/action_vitalSignFragment_to_colleagueSelectionFragment"
+            app:destination="@id/colleagueSelectionFragment" />
     </fragment>
 
     <fragment
@@ -42,8 +82,77 @@
         android:name="com.ivoryapp.nurseflow.ui.patient.PatientListFragment"
         android:label="Patients"
         tools:layout="@layout/fragment_patients">
+        <argument
+            android:name="isSelectionMode"
+            app:argType="boolean"
+            android:defaultValue="false" />
         <action
             android:id="@+id/action_patientListFragment_to_vitalSignFragment"
             app:destination="@id/vitalSignFragment" />
+        <action
+            android:id="@+id/action_patientListFragment_to_aiNotesFragment"
+            app:destination="@id/aiNotesFragment"
+            app:popUpTo="@id/aiNotesFragment"
+            app:popUpToInclusive="true" />
     </fragment>
+
+    <fragment
+        android:id="@+id/colleaguesFragment"
+        android:name="com.ivoryapp.nurseflow.ui.home.ColleaguesFragment"
+        android:label="Colleagues"
+        tools:layout="@layout/fragment_colleagues">
+        <action
+            android:id="@+id/action_colleaguesFragment_to_patientListFragment"
+            app:destination="@id/patientListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/aiNotesFragment"
+        android:name="com.ivoryapp.nurseflow.ui.ainotes.AiNotesFragment"
+        android:label="AI Clinical Notes"
+        tools:layout="@layout/fragment_ai_notes">
+        <argument
+            android:name="patientId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="aiSummary"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="isFromNotification"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_aiNotesFragment_to_patientListFragment"
+            app:destination="@id/patientListFragment" />
+        <action
+            android:id="@+id/action_aiNotesFragment_to_colleagueSelectionFragment"
+            app:destination="@id/colleagueSelectionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/colleagueSelectionFragment"
+        android:name="com.ivoryapp.nurseflow.ui.patient.ColleagueSelectionFragment"
+        android:label="Pilih Rekan Kerja"
+        tools:layout="@layout/fragment_colleague_selection">
+        <argument
+            android:name="patientId"
+            app:argType="integer" />
+        <argument
+            android:name="patientName"
+            app:argType="string" />
+        <argument
+            android:name="aiSummary"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/handoverFragment"
+        android:name="com.ivoryapp.nurseflow.ui.handover.HandoverFragment"
+        android:label="Briefing Shift"
+        tools:layout="@layout/fragment_handover" />
 </navigation>

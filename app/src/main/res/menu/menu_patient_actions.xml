@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_add_vital"
+        android:title="Catat Vital Sign"
+        android:icon="@android:drawable/ic_input_add" />
+    <item
+        android:id="@+id/action_remind"
+        android:title="Ingatkan Rekan"
+        android:icon="@drawable/ic_notifications" />
+</menu>

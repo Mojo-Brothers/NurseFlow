@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.androidx.navigation.safeargs)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -61,6 +62,21 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    // Firebase & Auth & Firestore
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.play.services.auth)
+
+    // Image Loading
+    implementation(libs.glide)
+
+    // Charts
+    implementation(libs.mp.android.chart)
+
+    // ML Kit Text Recognition
+    implementation(libs.mlkit.text.recognition)
 
     // Compose
     val composeBom = platform("androidx.compose:compose-bom:2024.12.01")
