@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_homeFragment_to_vitalSignFragment"
             app:destination="@id/vitalSignFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_patientListFragment"
+            app:destination="@id/patientListFragment" />
     </fragment>
 
     <fragment
@@ -28,5 +31,19 @@
         android:id="@+id/vitalSignFragment"
         android:name="com.ivoryapp.nurseflow.ui.patient.VitalSignFragment"
         android:label="Vital Signs"
-        tools:layout="@layout/fragment_vital_signs" />
+        tools:layout="@layout/fragment_vital_signs">
+        <argument
+            android:name="patientId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/patientListFragment"
+        android:name="com.ivoryapp.nurseflow.ui.patient.PatientListFragment"
+        android:label="Patients"
+        tools:layout="@layout/fragment_patients">
+        <action
+            android:id="@+id/action_patientListFragment_to_vitalSignFragment"
+            app:destination="@id/vitalSignFragment" />
+    </fragment>
 </navigation>

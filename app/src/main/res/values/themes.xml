@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Light Theme -->
     <style name="Theme.NurseFlow" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary_purple</item>
@@ -7,28 +8,28 @@
         <item name="colorPrimaryContainer">@color/primary_blue</item>
         <item name="colorOnPrimaryContainer">@color/white</item>
 
-        <!-- Background and Surface -->
-        <item name="android:windowBackground">@color/bg_dark</item>
-        <item name="colorSurface">@color/card_dark</item>
+        <!-- Background and Surface (Dynamic) -->
+        <item name="android:windowBackground">@color/surface_background</item>
+        <item name="colorSurface">@color/surface_card</item>
         <item name="colorOnSurface">@color/text_primary</item>
-        <item name="colorSurfaceVariant">@color/card_dark_stroke</item>
+        <item name="colorSurfaceVariant">@color/surface_stroke</item>
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>
 
         <!-- Status Bar -->
-        <item name="android:statusBarColor">@color/bg_dark</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:statusBarColor">@color/surface_background</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
     </style>
 
     <style name="PremiumCard" parent="Widget.Material3.CardView.Filled">
-        <item name="cardBackgroundColor">@color/card_dark</item>
+        <item name="cardBackgroundColor">@color/surface_card</item>
         <item name="cardCornerRadius">20dp</item>
-        <item name="cardElevation">4dp</item>
-        <item name="strokeColor">@color/card_dark_stroke</item>
+        <item name="cardElevation">2dp</item>
+        <item name="strokeColor">@color/surface_stroke</item>
         <item name="strokeWidth">1dp</item>
     </style>
 
     <style name="ToolButton" parent="Widget.Material3.Button.TonalButton">
-        <item name="backgroundTint">@color/card_dark</item>
+        <item name="backgroundTint">@color/surface_card</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="iconTint">@color/primary_purple</item>
         <item name="cornerRadius">16dp</item>

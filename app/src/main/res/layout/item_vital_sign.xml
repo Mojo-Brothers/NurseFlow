@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="6dp">
+    android:layout_marginVertical="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -23,104 +23,126 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Oct 24, 10:00 AM" />
 
+        <TextView
+            android:id="@+id/tv_risk_badge"
+            style="@style/RiskBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_risk"
+            android:text="@string/risk_low"
+            android:textColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <LinearLayout
             android:id="@+id/ll_vitals"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal"
-            android:weightSum="4"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/tv_timestamp">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:weightSum="3">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="BP"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView style="@style/VitalLabel" android:text="BP" />
+                    <TextView android:id="@+id/tv_bp" style="@style/VitalValue" tools:text="120/80" />
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tv_bp"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
-                    android:textStyle="bold"
-                    tools:text="120/80" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView style="@style/VitalLabel" android:text="PULSE" />
+                    <TextView android:id="@+id/tv_pulse" style="@style/VitalValue" tools:text="72" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView style="@style/VitalLabel" android:text="SpO2" />
+                    <TextView android:id="@+id/tv_spo2" style="@style/VitalValue" tools:text="98%" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:weightSum="3">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="PULSE"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView style="@style/VitalLabel" android:text="TEMP" />
+                    <TextView android:id="@+id/tv_temp" style="@style/VitalValue" tools:text="36.5°C" />
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tv_pulse"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/status_urgent"
-                    android:textStyle="bold"
-                    tools:text="72" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView style="@style/VitalLabel" android:text="RESP" />
+                    <TextView android:id="@+id/tv_resp" style="@style/VitalValue" tools:text="18" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView style="@style/VitalLabel" android:text="EWS" />
+                    <TextView android:id="@+id/tv_ews_score" style="@style/VitalValue" tools:text="0" />
+                </LinearLayout>
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TEMP"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-
-                <TextView
-                    android:id="@+id/tv_temp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
-                    android:textStyle="bold"
-                    tools:text="36.5" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="RESP"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-
-                <TextView
-                    android:id="@+id/tv_resp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
-                    android:textStyle="bold"
-                    tools:text="18" />
-            </LinearLayout>
-
         </LinearLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/surface_stroke"
+            app:layout_constraintTop_toBottomOf="@id/ll_vitals" />
+
+        <ImageView
+            android:id="@+id/iv_insight_icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginTop="12dp"
+            android:src="@android:drawable/ic_dialog_info"
+            android:contentDescription="Insight Icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:tint="@color/accent_cyan" />
+
+        <TextView
+            android:id="@+id/tv_clinical_insight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_insight_icon"
+            app:layout_constraintTop_toTopOf="@id/iv_insight_icon"
+            tools:text="Patient condition is stable. Continue routine monitoring." />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

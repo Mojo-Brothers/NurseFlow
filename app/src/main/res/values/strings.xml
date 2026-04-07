@@ -34,8 +34,13 @@
     <string name="hint_spo2">SpO2 (%)</string>
     <string name="hint_systolic">Systolic (mmHg)</string>
     <string name="hint_temp">Temp (°C)</string>
-    <string name="label_bp">Blood Pressure</string>
-    <string name="label_pulse">Pulse</string>
-    <string name="label_resp">Respiration</string>
-    <string name="label_temp">Temperature</string>
+    <string name="label_bp">BP (mmHg)</string>
+    <string name="label_pulse">PULSE (bpm)</string>
+    <string name="label_resp">RESP (bpm)</string>
+    <string name="label_temp">TEMP (°C)</string>
+    <string name="label_spo2">SpO2 (%%)</string>
+    <string name="label_ews_score">EWS SCORE</string>
+    <string name="risk_low">LOW RISK</string>
+    <string name="risk_medium">MEDIUM RISK</string>
+    <string name="risk_high">HIGH RISK</string>
 </resources>

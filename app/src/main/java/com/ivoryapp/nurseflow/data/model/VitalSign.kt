@@ -13,5 +13,7 @@ data class VitalSign(
     val temperature: Double,
     val respiration: Int,
     val spo2: Int? = null,
+    val painScale: Int? = null,
+    val consciousness: String = "Alert", // Alert, Voice, Pain, Unresponsive (AVPU)
     val timestamp: Long = System.currentTimeMillis()
 )

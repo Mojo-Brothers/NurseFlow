@@ -59,12 +59,16 @@ class HomeFragment : Fragment() {
         }
         
         binding.btnVitals.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_vitalSignFragment)
+            // Mengarahkan user ke daftar pasien terlebih dahulu agar bisa memilih pasien
+            findNavController().navigate(R.id.action_homeFragment_to_patientListFragment)
+        }
+
+        binding.btnPatients.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_patientListFragment)
         }
         
         // Placeholders for other MVP features
         binding.btnAiNotes.setOnClickListener { /* Navigate to AI Notes */ }
-        binding.btnPatients.setOnClickListener { /* Navigate to Patients List */ }
     }
 
     override fun onDestroyView() {

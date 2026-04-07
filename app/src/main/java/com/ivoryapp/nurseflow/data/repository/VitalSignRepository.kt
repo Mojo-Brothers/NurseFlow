@@ -11,4 +11,12 @@ class VitalSignRepository(private val vitalSignDao: VitalSignDao) {
     suspend fun insert(vitalSign: VitalSign) {
         vitalSignDao.insertVitalSign(vitalSign)
     }
+
+    suspend fun update(vitalSign: VitalSign) {
+        vitalSignDao.updateVitalSign(vitalSign)
+    }
+
+    suspend fun delete(vitalSign: VitalSign) {
+        vitalSignDao.deleteVitalSign(vitalSign)
+    }
 }

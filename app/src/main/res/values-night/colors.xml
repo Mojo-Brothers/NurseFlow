@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dynamic Mapping for Dark Mode -->
+    <color name="surface_background">@color/bg_dark</color>
+    <color name="surface_card">@color/card_dark</color>
+    <color name="surface_stroke">@color/card_dark_stroke</color>
+    <color name="text_primary">@color/text_primary_dark</color>
+    <color name="text_secondary">@color/text_secondary_dark</color>
+    <color name="text_muted">@color/text_muted_dark</color>
+
+    <!-- Dynamic Glass Mapping -->
+    <color name="surface_glass">@color/surface_card</color>
+    <color name="surface_glass_stroke">@color/surface_stroke</color>
+</resources>

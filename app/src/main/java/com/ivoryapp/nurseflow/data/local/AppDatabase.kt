@@ -11,7 +11,7 @@ import com.ivoryapp.nurseflow.data.model.VitalSign
 
 @Database(
     entities = [Task::class, Patient::class, VitalSign::class, NursingNote::class],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
